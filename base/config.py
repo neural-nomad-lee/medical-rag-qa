@@ -58,3 +58,23 @@ class Config:
         #   · load_dotenv 只在环境变量不存在时才写入, 已有系统环境变量优先;
         #   · 未安装 python-dotenv 时静默跳过, 退回 config.ini fallback(此时 key 需手工配置).
         try:
+            from dotenv import load_dotenv
+            load_dotenv(os.path.join(self.PROJECT_ROOT, '.env'))
+        except ImportError:
+            pass
+
+        self.LOG_DIR = os.path.join(self.PROJECT_ROOT, 'logs')
+        self.DATA_DIR = os.path.join(self.PROJECT_ROOT, 'rag_qa/data')
+        self.MODELS_DIR = os.path.join(self.PROJECT_ROOT, 'rag_qa/models')
+        self.MED_DOCUMENT_LOADERS_DIR = os.path.join(self.PROJECT_ROOT, 'rag_qa/med_document_loaders')
+
+        if config_file is None:
+            config_file = os.path.join(self.PROJECT_ROOT, 'config.ini')
+        # 读取配置文件
+        self.config.read(config_file, encoding='utf-8')
+
+        # MySQL 配置
+        # MySQL 主机地址
+        self.MYSQL_HOST = os.getenv('MYSQL_HOST', self.config.get('mysql', 'host', fallback='localhost'))
+        # MySQL 用户名
+        self.MYSQL_USER = os.getenv('MYSQL_USER', self.config.get('mysql', 'user', fallback='root'))
