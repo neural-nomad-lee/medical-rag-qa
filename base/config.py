@@ -38,3 +38,23 @@ class Config:
         # self.MYSQL_PASSWORD = self.config.get('mysql', 'password', fallback='123456')
         # self.MYSQL_DATABASE = self.config.get('mysql', 'database', fallback='med_kg')
         #
+        # # 3.2 解析Redis数据库配置.
+        # self.REDIS_HOST = self.config.get('redis', 'host', fallback='localhost')
+        # self.REDIS_PORT = self.config.get('redis', 'port', fallback=6379)
+        # self.REDIS_PASSWORD = self.config.get('redis', 'password', fallback='1234')
+        # self.REDIS_DB = self.config.get('redis', 'db', fallback=0)
+        #
+        # # 3.3 解析日志配置.
+        # # 日志文件路径: 从 [logger]节点的log_file键获取, 默认值为: logs/app.log
+        # self.LOG_FILE = self.config.get('logger', 'log_file', fallback='logs/app.log')
+
+
+        # 创建配置解析器，启用插值功能
+        self.config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
+        # 如果没有提供配置文件路径，则使用默认路径
+        self.PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
+
+        # 【安全】加载项目根目录 .env 中的敏感配置(如 API Key):
+        #   · load_dotenv 只在环境变量不存在时才写入, 已有系统环境变量优先;
+        #   · 未安装 python-dotenv 时静默跳过, 退回 config.ini fallback(此时 key 需手工配置).
+        try:
