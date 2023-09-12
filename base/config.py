@@ -78,3 +78,22 @@ class Config:
         self.MYSQL_HOST = os.getenv('MYSQL_HOST', self.config.get('mysql', 'host', fallback='localhost'))
         # MySQL 用户名
         self.MYSQL_USER = os.getenv('MYSQL_USER', self.config.get('mysql', 'user', fallback='root'))
+        # MySQL 密码
+        self.MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', self.config.get('mysql', 'password', fallback='123456'))
+        # MySQL 数据库名
+        self.MYSQL_DATABASE = os.getenv('MYSQL_DATABASE',
+                                        self.config.get('mysql', 'database', fallback='med_kg'))
+
+        # Redis 配置
+        # Redis 主机地址
+        self.REDIS_HOST = os.getenv('REDIS_HOST', self.config.get('redis', 'host', fallback='localhost'))
+        # Redis 端口
+        self.REDIS_PORT = int(os.getenv('REDIS_PORT', self.config.get('redis', 'port', fallback=6379)))
+        # Redis 密码
+        self.REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', self.config.get('redis', 'password', fallback='1234'))
+        # Redis 数据库编号
+        self.REDIS_DB = int(os.getenv('REDIS_DB', self.config.get('redis', 'db', fallback=0)))
+
+        # Milvus 配置
+        # Milvus 主机地址
+        self.MILVUS_HOST = os.getenv('MILVUS_HOST', self.config.get('milvus', 'host', fallback='localhost'))
