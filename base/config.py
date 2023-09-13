@@ -137,3 +137,23 @@ class Config:
         # 兼容旧字段名: 部分代码/文档可能仍引用 VALID_SOURCES, 统一指向科室列表.
         self.VALID_SOURCES = self.DEPARTMENTS
         # 客服电话
+        self.CUSTOMER_SERVICE_PHONE = self.config.get('app', 'customer_service_phone', fallback='12345678')
+
+        # 日志文件路径
+        self.LOG_FILE = os.path.join(self.LOG_DIR, 'app.log')
+
+# 扩展: 创建Config类的实例.
+config = Config()
+
+# todo 3. 主程序入口 -> 测试代码.
+if __name__ == '__main__':
+    # 1. 手动指定配置文件路径 -> 用于测试, 实际使用可忽略.
+    # config_file = 'D:/workspace/ai_30_bj/integrated_qa_system/config.ini'      # 绝对路径.
+    config_file = '../config.ini'      # 相对路径.
+
+    # 2. 实例化Config类 -> 加载并解析配置文件.
+    conf = Config(config_file)
+    # 3. 测试: 获取各服务配置参数.
+    print(f'mysql: {conf.MYSQL_HOST}, {conf.MYSQL_USER}, {conf.MYSQL_PASSWORD}, {conf.MYSQL_DATABASE}')
+    print(f'redis: {conf.REDIS_HOST}, {conf.REDIS_PORT}, {conf.REDIS_PASSWORD}, {conf.REDIS_DB}')
+    print(f'log: {conf.LOG_FILE}')
