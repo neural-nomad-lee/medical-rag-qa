@@ -117,3 +117,23 @@ class Config:
         self.DASHSCOPE_BASE_URL = self.config.get('llm', 'dashscope_base_url',
                                                   fallback='https://dashscope.aliyuncs.com/compatible-mode/v1')
 
+        # 检索参数
+        # 父块大小
+        self.PARENT_CHUNK_SIZE = self.config.getint('retrieval', 'parent_chunk_size', fallback=1200)
+        # 子块大小
+        self.CHILD_CHUNK_SIZE = self.config.getint('retrieval', 'child_chunk_size', fallback=300)
+        # 块重叠大小
+        self.CHUNK_OVERLAP = self.config.getint('retrieval', 'chunk_overlap', fallback=50)
+        # 检索返回数量
+        self.RETRIEVAL_K = self.config.getint('retrieval', 'retrieval_k', fallback=5)
+        # 最终候选数量
+        self.CANDIDATE_M = self.config.getint('retrieval', 'candidate_m', fallback=2)
+
+        # 应用配置
+        # 有效科室列表（用于 RAG 检索的科室过滤，与医疗导诊FAQ.csv 对齐）
+        import ast  # 使用 ast.literal_eval 安全解析列表字面量, 避免 eval() 的代码执行风险.
+        self.DEPARTMENTS = ast.literal_eval(
+            self.config.get('app', 'departments', fallback='["心血管内科", "呼吸内科"]'))
+        # 兼容旧字段名: 部分代码/文档可能仍引用 VALID_SOURCES, 统一指向科室列表.
+        self.VALID_SOURCES = self.DEPARTMENTS
+        # 客服电话
