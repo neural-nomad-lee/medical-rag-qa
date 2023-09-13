@@ -97,3 +97,23 @@ class Config:
         # Milvus 配置
         # Milvus 主机地址
         self.MILVUS_HOST = os.getenv('MILVUS_HOST', self.config.get('milvus', 'host', fallback='localhost'))
+        # Milvus 端口
+        self.MILVUS_PORT = os.getenv('MILVUS_PORT', self.config.get('milvus', 'port', fallback='19530'))
+        # Milvus 数据库名
+        self.MILVUS_DATABASE_NAME = os.getenv('MILVUS_DATABASE_NAME',
+                                              self.config.get('milvus', 'database_name', fallback='medrag'))
+        # Milvus 集合名
+        self.MILVUS_COLLECTION_NAME = os.getenv('MILVUS_COLLECTION_NAME',
+                                                self.config.get('milvus', 'collection_name',
+                                                                fallback='medrag_collection'))
+
+        # LLM 配置
+        # LLM 模型名
+        self.LLM_MODEL = self.config.get('llm', 'model', fallback='qwen-plus')
+        # DashScope API 密钥
+        self.DASHSCOPE_API_KEY = os.getenv('DASHSCOPE_API_KEY', self.config.get('llm', 'dashscope_api_key',
+                                                                                fallback='记得改成你的密钥'))
+        # DashScope API 地址
+        self.DASHSCOPE_BASE_URL = self.config.get('llm', 'dashscope_base_url',
+                                                  fallback='https://dashscope.aliyuncs.com/compatible-mode/v1')
+
