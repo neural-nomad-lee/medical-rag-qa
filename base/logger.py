@@ -45,3 +45,26 @@ def setup_logger(log_file=log_file):
 
         # 3. 创建控制台处理器 -> 用于将日志输出到控制台.
         console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+
+        # 4. 创建文件处理器 -> 用于将日志输出到文件.
+        file_handler = logging.FileHandler(log_file, encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
+
+        # 5. 创建日志输出格式, 即: 时间戳 - 日志器名称 - 日志级别 - 日志内容
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+        # 6. 为两个处理器分别绑定日志格式.
+        console_handler.setFormatter(formatter)
+        file_handler.setFormatter(formatter)
+
+        # 7. 添加处理器到日志记录器中.
+        logger.addHandler(console_handler)
+        logger.addHandler(file_handler)
+
+    # 8. 返回日志记录器.
+    return logger
+
+
+# todo 3. 初始化日志器 -> 项目启动时自动执行, 其它模块导入此logger日志器即可直接使用.
+logger = setup_logger()
