@@ -40,3 +40,24 @@ class MySQLClient:
                 user = Config().MYSQL_USER,             # MySQL登录用户名
                 password = Config().MYSQL_PASSWORD,     # MySQL登录密码
                 database = Config().MYSQL_DATABASE,     # 数据库名称
+                charset = 'utf8mb4'                     # 字符集: 支持中文与emoji
+            )
+            # 3. 创建游标对象 -> 用于执行SQL语句并返回结果.
+            self.cursor = self.connection.cursor()
+
+            # 4. 记录info日志 -> 确认MySQL连接成功.
+            self.logger.info('MySQL 连接成功')
+        except pymysql.MySQLError as e:
+            # 5. 记录error日志 -> 输出错误信息.
+            self.logger.error(f'MySQL 连接失败: {e}')
+            raise       # 抛出异常, 不屏蔽错误, 让调用方感知连接失败.
+
+
+    # todo 2.2 创建数据表 -> 若 ylkb表不存在则创建, 定义表结构.
+    def create_table(self):
+        # 1. 定义创建表的SQL语句, 创建 ylkb表, 存储: 医疗导诊知识问答数据.
+        # 注意: MySQL 5.7 不支持列定义后跟 # 注释的写法(会抛1064), 注释全部外移.
+        #       answer 使用 TEXT 而非 VARCHAR(1000), 避免长答案被截断.
+        create_table_query = """
+        CREATE TABLE IF NOT EXISTS ylkb (
+            id INT AUTO_INCREMENT PRIMARY KEY,
