@@ -61,3 +61,24 @@ class MySQLClient:
         create_table_query = """
         CREATE TABLE IF NOT EXISTS ylkb (
             id INT AUTO_INCREMENT PRIMARY KEY,
+            department VARCHAR(20),
+            question TEXT,
+            answer TEXT,
+            expire_at DATETIME NULL)
+        """
+        # 字段说明:
+        #   department 科室名称(对应医疗导诊FAQ.csv 的"科室"列, VARCHAR(20) 足够)
+        #   question   问题原文
+        #   answer     答案原文(用 TEXT 避免截断)
+        #   expire_at  到期时间(NULL=永久保留; 由RAG沉淀的答案半年后到期自动清理)
+
+        try:
+             # 2. 执行SQL语句 -> 创建表.
+             self.cursor.execute(create_table_query)
+             # 3. 提交事务 -> 确认表创建成功.  MySQL默认事务需要手动提交, 确保表创建成功.
+             self.connection.commit()
+             # 4. 输出信息日志 -> 确认表创建成功.
+             self.logger.info('表创建成功')
+        except pymysql.MySQLError as e:
+            # 5. 输出错误信息.
+            self.logger.error(f'创建表失败: {e}')
