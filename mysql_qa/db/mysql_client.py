@@ -103,3 +103,24 @@ class MySQLClient:
             # 3. 提交事务: 确保所有插入操作批量生效.
             self.connection.commit()
             # 4. 输出信息日志 -> 确认数据插入成功.
+            self.logger.info('MySQL数据插入成功')
+
+        except Exception as e:
+            # 5.捕获异常信息, 回滚事务, 抛出异常信息.
+            # 5.1 输出错误信息.
+            self.logger.error(f'数据插入失败: {e}')
+            # 5.2 事务回滚: 把数据库连接恢复到事务开始前的状态 -> 类似于: Linux的快照.
+            self.connection.rollback()
+            # 5.3 抛出异常, 不屏蔽错误, 让调用方感知数据插入失败.
+            raise
+
+
+    # todo 2.4 从 ylkb表中获取所有问题(返回问题列表)
+    def fetch_questions(self):
+        try:
+            # 1. 执行SQL查询.
+            self.cursor.execute("select question from ylkb")
+            # 2. 获取查询结果. fetch_all(): 返回所有匹配数据.
+            results = self.cursor.fetchall()
+            # 3. 记录INFO日志 -> 确认数据查询成功.
+            self.logger.info('数据查询成功')
