@@ -82,3 +82,24 @@ class MySQLClient:
         except pymysql.MySQLError as e:
             # 5. 输出错误信息.
             self.logger.error(f'创建表失败: {e}')
+            raise
+
+
+    # todo 2.3 从csv文件批量插入数据到 ylkb表中.
+    def insert_data(self, csv_path):
+        try:
+            # 1. 读取csv文件 -> 获取数据.
+            data = pd.read_csv(csv_path)
+            # 扩展: 打印下, 查看一下数据.
+            # print(data.head())
+
+            # 2. 循环遍历csv每一行数据 -> 执行插入操作.
+            for _, row in data.iterrows():
+                # 2.1 定义插入SQL语句, 使用 %s占位符, 避免SQL注入攻击问题.
+                insert_query = "insert into ylkb(department, question, answer) values(%s, %s, %s)"
+                # 2.2 执行SQL语句 -> 将csv行数据(科室, 问题, 答案)传入占位符.
+                self.cursor.execute(insert_query, (row['科室'], row['问题'], row['答案']))
+
+            # 3. 提交事务: 确保所有插入操作批量生效.
+            self.connection.commit()
+            # 4. 输出信息日志 -> 确认数据插入成功.
