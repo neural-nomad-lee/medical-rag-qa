@@ -124,3 +124,24 @@ class MySQLClient:
             results = self.cursor.fetchall()
             # 3. 记录INFO日志 -> 确认数据查询成功.
             self.logger.info('数据查询成功')
+            # 4. 返回查询结果.
+            return results
+
+        except pymysql.MySQLError as e:
+            # 5. 输出错误信息.
+            self.logger.error(f'数据查询失败: {e}')
+            # 返回空列表, 避免异常.
+            return []
+
+
+    # todo 2.5 根据指定问题 从 ylkb表中获取对应的答案.
+    def fetch_answer(self, question):
+        try:
+            # 1. 执行SQL查询.
+            self.cursor.execute("select answer from ylkb where question=%s", (question,))       # 占位符方式, 避免SQL注入攻击问题.
+            # 2. 获取查询结果.
+            result = self.cursor.fetchone()         # fetchone(): 获取单行数据.
+            # 3. 输出查询到的结果.
+            # print(f'result: {result}')
+            # 4. 处理结果: 有匹配数据则返回答案(取元组的第1个元素), 无匹配返回None
+            return result[0] if result else None
