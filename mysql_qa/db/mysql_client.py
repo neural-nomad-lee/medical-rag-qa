@@ -145,3 +145,24 @@ class MySQLClient:
             # print(f'result: {result}')
             # 4. 处理结果: 有匹配数据则返回答案(取元组的第1个元素), 无匹配返回None
             return result[0] if result else None
+        except pymysql.MySQLError as e:
+            # 5. 输出错误信息.
+            self.logger.error(f'答案获取失败: {e}')
+            # 6. 返回空字符串, 避免异常.
+            return None
+
+
+    # todo 2.6 关闭MySQL连接 -> 释放资源, 避免连接泄漏.
+    def close(self):
+        # 关闭数据库连接
+        try:
+            # 关闭连接
+            self.connection.close()
+            # 记录关闭成功
+            self.logger.info("MySQL 连接已关闭")
+        except pymysql.MySQLError as e:
+            # 记录关闭失败
+            self.logger.error(f"关闭连接失败: {e}")
+
+
+
