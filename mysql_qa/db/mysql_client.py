@@ -166,3 +166,24 @@ class MySQLClient:
 
 
 
+# todo 3.测试代码.
+if __name__ == '__main__':
+    # 1. 实例化MySQLClient类 -> 创建数据库连接.
+    mysql_client = MySQLClient()
+
+    # 2. 以下为各种功能测试代码.
+    mysql_client.create_table()     # 创建数据表.
+
+    # 3. 批量插入数据 -> 函数不能重复执行, 否则有追加数据的效果.
+    mysql_client.insert_data(csv_path='../data/医疗导诊FAQ.csv')
+
+    # 4. 获取所有问题 -> 返回问题列表.
+    questions = mysql_client.fetch_questions()
+    print(questions)
+
+    # 5. 根据问题获取答案.
+    answer = mysql_client.fetch_answer('血压低挂什么科？')
+    print(answer)
+
+    # 6. 关闭数据库连接.
+    mysql_client.close()
