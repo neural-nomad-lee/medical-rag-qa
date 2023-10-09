@@ -40,3 +40,24 @@ class RedisClient:
         # 2. 建立Redis连接.
         try:
             self.client = redis.StrictRedis(
+                host=Config().REDIS_HOST,           # Redis数据库主机地址
+                port=Config().REDIS_PORT,           # Redis数据库端口号
+                password=Config().REDIS_PASSWORD,   # Redis数据库密码
+                db=Config().REDIS_DB,               # Redis数据库编号
+                decode_responses=True,              # 自动将返回的字节数据转换为字符串(避免手动解码)
+                # 【连接健壮性】Redis 服务端会回收空闲连接(idle timeout), 连接池里的旧连接随之失效,
+                # 再次使用时报 "Connection closed by server."。以下三项开启健康检查与自动重连:
+                socket_keepalive=True,              # TCP 保活, 防止空闲连接被网络设备回收
+                health_check_interval=30,           # 连接空闲超过30秒后, 复用前先 PING, 失效则自动重建
+                retry_on_timeout=True               # 命令超时自动重试一次
+            )
+        except redis.RedisError as e:
+            self.logger.error(f'Redis连接异常: {e}')
+            raise   # 声明抛出异常.
+
+        # 3. 记录INFO日志
+        self.logger.info('Redis连接成功')
+
+    # todo 1.2 存储数据到Redis -> 将Python对象序列化为json字符串存储(默认20小时过期).
+    def set_data(self, key, value, expire_seconds=DEFAULT_EXPIRE_SECONDS):
+        try:
