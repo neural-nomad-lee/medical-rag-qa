@@ -61,3 +61,24 @@ class RedisClient:
     # todo 1.2 存储数据到Redis -> 将Python对象序列化为json字符串存储(默认20小时过期).
     def set_data(self, key, value, expire_seconds=DEFAULT_EXPIRE_SECONDS):
         try:
+            # 1. 存储数据, 并设置过期时间(20小时后自动删除).
+            self.client.set(
+                key,
+                json.dumps(value, ensure_ascii=False),  # ensure_ascii: 保证中文等非ASCII字符正常显式.
+                ex=expire_seconds                        # ex: 过期秒数, 到期自动删除.
+            )
+            # 2. 记录INFO日志.
+            self.logger.info(f'Redis存储数据成功: {key} (过期时间: {expire_seconds}秒)')
+        except redis.RedisError as e:
+            self.logger.error(f'Redis存储数据失败: {e}')
+
+
+    # todo 1.3 从Redis中获取数据 -> 反序列化为Python对象.
+    def get_data(self, key):
+        try:
+            # 1. 获取数据.
+            data = self.client.get(key)
+            # 2. 处理结果 -> 反序列化为Python对象, 再返回.
+            return json.loads(data) if data else None
+        except redis.RedisError as e:
+            self.logger.error(f'Redis获取数据失败: {e}')
