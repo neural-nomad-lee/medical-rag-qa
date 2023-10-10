@@ -82,3 +82,24 @@ class RedisClient:
             return json.loads(data) if data else None
         except redis.RedisError as e:
             self.logger.error(f'Redis获取数据失败: {e}')
+            return None     # 保持方法的返回值一致性.
+
+
+    # todo 1.4 根据查询内容从Redis获取缓存的答案 -> 键格式固定为: "answer:{query}"
+    def get_answer(self, query):
+        try:
+            # 1. 构建键名, 区分不同类型的缓存数据.
+            answer = self.client.get(f"answer:{query}")
+            # 2. 若存在缓存答案, 记录INFO日志, 并返回内容即可.
+            if answer:
+                self.logger.info(f'从Redis中获取答案成功: {query}')
+                return answer
+            # 3.走到这里, 说明缓存答案不存在, 需要从数据库中查询, 返回None
+            return None
+        except redis.RedisError as e:
+            self.logger.error(f'从Redis中获取答案失败: {e}')
+            return None
+
+    # todo 1.5 删除指定键 -> 用于知识库更新后主动失效相关缓存(如BM25问题列表缓存).
+    def delete_keys(self, *keys):
+        """删除一个或多个Redis键, 键不存在时静默忽略."""
