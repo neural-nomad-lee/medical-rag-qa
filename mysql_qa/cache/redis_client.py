@@ -103,3 +103,24 @@ class RedisClient:
     # todo 1.5 删除指定键 -> 用于知识库更新后主动失效相关缓存(如BM25问题列表缓存).
     def delete_keys(self, *keys):
         """删除一个或多个Redis键, 键不存在时静默忽略."""
+        try:
+            if keys:
+                self.client.delete(*keys)
+                self.logger.info(f'Redis删除键成功: {keys}')
+        except redis.RedisError as e:
+            self.logger.error(f'Redis删除键失败: {e}')
+
+
+# todo 2.测试代码
+if __name__ == '__main__':
+    # 1. 实例化RedisClient客户端.
+    redCli = RedisClient()
+
+    # 2. 获取Redis中所有的键.
+    print(redCli.client.keys("*"))
+
+    # 3. 测试get_data()方法: 获取Redis中存储的答案.
+    print(redCli.get_data('user:1'))            # {'name': 'HangGe', 'age': 18}
+
+    # 4. 测试get_answer方法: 获取Redis中存储的答案.  -> 这个才是后续我们要用的.
+    print(redCli.get_answer('熵的解释'))
