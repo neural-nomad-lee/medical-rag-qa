@@ -38,3 +38,23 @@ class BM25Search:
 
     # todo 1.2 数据加载方法 -> 优先从Reids缓存加载, 缓存未命中则从MySQL加载.
     def _load_data(self):
+        # 1. 定义Redis缓存键 -> 区分原始问题 和 分词后问题的缓存.
+        original_key = "qa_original_questions"      # 原始问题缓存键, 它的数据格式为: ['问题1', '问题2', '问题3'...]
+        tokenized_key = "qa_tokenized_questions"    # 分词后问题缓存键, 它的数据格式为: [['问题1切词后的词1', '词2', '词3'...], ['问题2切词词1', '词2'...], ['问题3...']...]
+
+        # 2. 从Redis中获取原始问题 -> 缓存读取速度快, 减少数据库访问.
+        self.original_questions = self.redis_client.get_data(original_key)
+        # print(f'original_questions: {self.original_questions}')
+
+        # 3. 从Redis中获取分词后的问题.
+        tokenized_questions = self.redis_client.get_data(tokenized_key)
+        # print(f'tokenized_questions: {tokenized_questions}')
+
+        # 4. 若Redis缓存中无数据(或者数据不完整) -> 则从MySQL加载并更新缓存.
+        if not self.original_questions or not tokenized_questions:
+            # 4.1 从MySQL获取原始文件列表, 格式为 元组嵌套, 例如: ((问题1, ), (问题2, )...)
+            self.original_questions = self.mysql_client.fetch_questions()
+            # print(f'original_questions: {self.original_questions}')
+
+            # 4.2 若MySQL也无问题数据, 记录警告日志并返回.
+            if not self.original_questions:
