@@ -78,3 +78,23 @@ class BM25Search:
 
     # todo 1.2.1 缓存刷新方法 -> 知识库更新后主动失效缓存并重新加载问题列表.
     def refresh(self):
+        """
+        函数功能: 清除Redis中的问题列表缓存, 并从MySQL重新加载, 重建BM25索引.
+        使用场景: 新知识(RAG沉淀的问答)写入 ylkb 表后调用, 让 BM25 能立即检索到新问题.
+        :return: True -> 刷新成功, False -> 刷新失败
+        """
+        try:
+            # 1. 删除两类缓存键 -> 下次 _load_data() 会重新从MySQL加载并写回缓存.
+            self.redis_client.delete_keys('qa_original_questions', 'qa_tokenized_questions')
+            # 2. 重置内存状态并重新加载.
+            self.original_questions = None
+            self.questions = None
+            self.bm25 = None
+            self._load_data()
+            # 3. 记录日志.
+            self.logger.info('BM25 缓存刷新完成')
+            return True
+        except Exception as e:
+            self.logger.error(f'BM25 缓存刷新失败: {e}')
+            return False
+
