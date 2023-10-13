@@ -58,3 +58,23 @@ class BM25Search:
 
             # 4.2 若MySQL也无问题数据, 记录警告日志并返回.
             if not self.original_questions:
+                self.logger.warning('未从MySQL加载到任何问题数据')
+                return
+
+            # 4.3 对原始问题进行分词处理 -> 转换为词语列表.
+            # 注意: q[0]是因为原始问题格式为: (('问题1', ), ('问题2', )...)
+            tokenized_questions = [preprocess_text(q[0]) for q in self.original_questions]
+
+            # 4.4 将原始问题列表转换为字符串 -> 去除元组嵌套, 并存换到Redis中.
+            self.redis_client.set_data(original_key, [(q[0]) for q in self.original_questions])
+            self.redis_client.set_data(tokenized_key, tokenized_questions)
+
+        # 5. 保存分词后的问题列表 -> 用于BM25模型初始化.
+        self.questions = tokenized_questions
+        # 6. 初始化BM25模型.
+        self.bm25 = BM25Okapi(self.questions)
+        # 7. 记录INFO日志
+        self.logger.info('BM25模型 初始化成功')
+
+    # todo 1.2.1 缓存刷新方法 -> 知识库更新后主动失效缓存并重新加载问题列表.
+    def refresh(self):
