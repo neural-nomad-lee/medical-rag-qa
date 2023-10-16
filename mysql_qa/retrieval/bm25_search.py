@@ -98,3 +98,23 @@ class BM25Search:
             self.logger.error(f'BM25 缓存刷新失败: {e}')
             return False
 
+
+    # todo 1.3 softmax分数归一化方法 -> 将BM25分数转换为概率分布, 便于阈值判断.
+    def _softmax(self, scores):
+        # 对输入分数进行softmax归一化, 输出总和为1的概率分布.
+        # 1. 计算指数分数: 每个分数减去最大值 -> 防止数值过大导致溢出.
+        exp_scores = np.exp(scores - np.max(scores))
+        # 2. 返回归一化结果.
+        return exp_scores / np.sum(exp_scores)
+
+
+    # todo 1.4 核心搜索方法: 处理查询, 计算相似度, 返回匹配答案 或 提示无结果.
+    def search(self, query, threshold=0.85):
+        """
+        根据输入查询检索 最相似的问题 并返回对应答案
+        :param query: 用户查询文本
+        :param threshold: 相似度阈值 -> 超过此值即为匹配成功
+        :return: 匹配成功: (答案, False),  未匹配: (None, True)      True:新查询, False: 非新查询(命中缓存)
+        """
+        # 1. 检查查询有效性 -> 空或者非字符串类型认为无效.
+        if not query or not isinstance(query, str):
