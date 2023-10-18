@@ -118,3 +118,23 @@ class BM25Search:
         """
         # 1. 检查查询有效性 -> 空或者非字符串类型认为无效.
         if not query or not isinstance(query, str):
+            self.logger.error('无效查询: 查询为空或者非字符串类型')
+            return None, True
+
+        # 2. 走这里(肯定是非空字符串), 先检查Redis缓存 -> 缓存命中则直接返回.
+        cached_answer = self.redis_client.get_answer(query)
+        if cached_answer:
+            # 走这里, 说明缓存命中(即: 从Redis中获取的答案), 返回即可.
+            return cached_answer, False     # 这里的False意思是: 非新查询(命中缓存)
+
+        # 走到这里, 说明: 缓存未命中, 需要从数据库中查询.
+        try:
+            # 3.对查询文本进行预处理 -> 分词, 和问题库预处理逻辑一致.
+            query_tokens = preprocess_text(query)
+            # 4. 计算查询 与 (数据库中)所有问题的BM25相似度.
+            scores = self.bm25.get_scores(query_tokens)
+            # print(f'scores: {scores}')
+            # 5. 对分数进行归一化处理 -> 转换为概率分布.
+            softmax_score = self._softmax(scores)
+            # print(f'softmax_score: {softmax_score}')
+            # 6. 找到最高相似度对应的索引和分数.
