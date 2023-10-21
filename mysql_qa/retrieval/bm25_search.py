@@ -138,3 +138,23 @@ class BM25Search:
             softmax_score = self._softmax(scores)
             # print(f'softmax_score: {softmax_score}')
             # 6. 找到最高相似度对应的索引和分数.
+            best_idx = softmax_score.argmax()       # 最高分索引.
+            best_score = softmax_score[best_idx]    # 最高分.
+            print(f'best_idx: {best_idx}, best_score: {best_score}')
+
+            # 7.若最高分超过阈值, 视为匹配成功.
+            if best_score >= threshold:
+                # 7.1 获取最高匹配度的原始问题 -> 用于从数据库查询答案.
+                original_question = self.original_questions[best_idx]
+                # 7.2 从MySQL数据库中查询该问题的答案.
+                answer = self.mysql_client.fetch_answer(original_question)
+                if answer:
+                    # 7.3 将 查询-答案对 缓存到Redis中 -> 供下次查询用.
+                    self.redis_client.set_data(f'answer:{query}', answer)
+                    # 7.4 记录INFO级别日志: 搜索成功及相似度.
+                    self.logger.info(f'搜索成功, 相似度: {best_score:.3f}')
+                    return answer, False     # False: 非新查询 -> 因为这个问题已经缓存到Redis了.
+
+            # 8. 若未超过阈值, 记录INFO级日志并返回结果.
+            self.logger.info(f'未找到可靠答案, 最高匹配度: {best_score:.3f}(低于阈值{threshold:.3f})')
+            return None, True               # True: 新查询,需要进一步处理(即: 走RAG)
