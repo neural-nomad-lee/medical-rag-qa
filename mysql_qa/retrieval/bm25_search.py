@@ -158,3 +158,23 @@ class BM25Search:
             # 8. 若未超过阈值, 记录INFO级日志并返回结果.
             self.logger.info(f'未找到可靠答案, 最高匹配度: {best_score:.3f}(低于阈值{threshold:.3f})')
             return None, True               # True: 新查询,需要进一步处理(即: 走RAG)
+
+        except Exception as e:
+            self.logger.error(f'数据库查询异常: {e}')
+            return None, True
+
+
+
+# todo 2. 测试代码.
+if __name__ == '__main__':
+    # 1. 实例化Redis 和 MySQL客户端.
+    redis_client = RedisClient()
+    mysql_client = MySQLClient()
+
+    # 2. 创建BM25搜索实例.
+    bm25_search = BM25Search(redis_client, mysql_client)
+
+    # 3. 测试搜索功能, 例如: 查询 '血压低挂什么科？' 或者 '低血压是怎么回事？'
+    result = bm25_search.search(query='血压低挂什么科？')
+    print(f'result: \n{result}')
+
