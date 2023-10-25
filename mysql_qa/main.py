@@ -36,3 +36,21 @@ class MySQLQASystem:
         """
         处理用户查询, 通过BM25搜索从MySQL获取答案, 返回结果并记录日志.
         :param query: 用户输入的查询文本.
+        :return: 匹配到的答案 -> 未找到就返回默认提示
+        """
+        # 1. 记录: 查询开始时间.
+        start_time = time.time()
+        # 2. 记录INFO日志: 标记当前正在处理的查询内容.
+        self.logger.info(f'处理查询: {query}')
+        # 3. 调用BM25搜索模型, 获取答案.
+        # _表示 忽略是否需要进一步处理, 这里我们只获取答案.
+        answer, _ = self.bm25_search.search(query, threshold=0.85)
+        # 4. 分支处理搜索结果: 找到答案就记录, 未找到就返回默认提示.
+        if answer:
+            self.logger.info(f'MySQL答案: {answer}')
+        else:
+            self.logger.info('SQL中未找到答案, 需要调用RAG系统')
+            answer = 'SQL中未找到答案'        # 设置默认提示性答案
+
+        # 5. 计算查询处理耗时, 并记录耗时日志.
+        process_time = time.time() - start_time
