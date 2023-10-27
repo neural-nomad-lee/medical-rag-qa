@@ -54,3 +54,22 @@ class MySQLQASystem:
 
         # 5. 计算查询处理耗时, 并记录耗时日志.
         process_time = time.time() - start_time
+        self.logger.info(f'查询处理耗时: {process_time:.3f}秒')
+        # 6. 返回答案.
+        return answer
+
+
+# todo 2. 主函数 -> 创建问答系统实例, 提供交互式命令界面.
+def main():
+    # 1. 创建MySQL问答系统实例.
+    mysql_qa = MySQLQASystem()
+    try:
+        # 2. 打印欢迎信息 和 使用说明.
+        print('\n欢迎使用MySQL问答系统:')
+        print('输入查询进行回答, 输入 exit 退出!!!')
+
+        # 3. 循环获取用户输出, 处理查询 或者 退出.
+        while True:
+            # 3.1 获取用户输入并移除首尾空格.
+            query = input('\n请输入查询: ').strip()
+            # 3.2 判断是否是exit, 如果是, 就退出.
