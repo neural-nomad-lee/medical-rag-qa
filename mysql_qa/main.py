@@ -73,3 +73,22 @@ def main():
             # 3.1 获取用户输入并移除首尾空格.
             query = input('\n请输入查询: ').strip()
             # 3.2 判断是否是exit, 如果是, 就退出.
+            if query.lower() == 'exit':
+                logger.info('退出MySQL系统')
+                print('再见!!!')
+                break
+            # 3.3 调用问答系统处理查询, 获取答案.
+            answer = mysql_qa.query(query)
+            print(f'答案: {answer}')
+
+    except Exception as e:
+        # 捕获异常并记录错误日志.
+        logger.error(f'系统错误: {e}')
+    finally:
+        # 无论是否发生问题, 都会走这里, 我们关闭: MySQL连接.
+        mysql_qa.mysql_client.close()
+
+
+# todo 3. 测试代码.
+if __name__ == '__main__':
+    main()
