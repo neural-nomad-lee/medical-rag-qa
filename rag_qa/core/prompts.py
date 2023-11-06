@@ -40,3 +40,25 @@ class RAGPrompts:
 
                 如果无法回答，请回复：“信息不足，无法回答，请联系人工客服，电话：{phone}。”
                 回答:
+                """,
+            # ★ 必须与 template 里的 {xxx} 完全一一对应，多一个少一个都会出问题
+            input_variables=["context", "history", "question", "phone"],
+        )
+
+    @staticmethod
+    def hyde_prompt():
+        #   创建并返回 PromptTemplate 对象
+        return PromptTemplate(
+            template="""  
+            假设你是用户，想了解以下问题，请生成一个简短的假设答案：  
+            问题: {query}  
+            假设答案:  
+            """,
+            #   定义输入变量
+            input_variables=["query"],
+        )
+
+    # todo 1.3 定义子查询生成的 Prompt 模板 -> 将长/复杂查询拆分为多个简单子查询, 便于分布检索.
+    @staticmethod
+    def subquery_prompt():
+        #   创建并返回 PromptTemplate 对象
