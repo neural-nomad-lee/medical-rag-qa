@@ -62,3 +62,24 @@ class RAGPrompts:
     @staticmethod
     def subquery_prompt():
         #   创建并返回 PromptTemplate 对象
+        return PromptTemplate(
+            template="""  
+            将以下复杂查询分解为多个简单子查询，每行一个子查询：  
+            查询: {query}  
+            子查询:  
+            """,
+            #   定义输入变量
+            input_variables=["query"],
+        )
+
+    # todo 1.4 定义回溯问题生成的 Prompt 模板 -> 将复杂/冗长查询简化为简短问题, 提升检索关键词集中度.
+    @staticmethod
+    def backtracking_prompt():
+        #   创建并返回 PromptTemplate 对象
+        return PromptTemplate(
+            template="""  
+            将以下复杂查询简化为一个更简单的问题：  
+            查询: {query}  
+            简化问题:  
+            """,
+            #   定义输入变量
