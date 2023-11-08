@@ -83,3 +83,24 @@ class RAGPrompts:
             简化问题:  
             """,
             #   定义输入变量
+            input_variables=["query"],
+        )
+
+# todo 2. 测试代码.
+if __name__ == '__main__':
+    # 测试1: 基础RAG回答模版 -> 直接检索.
+    # 1. 创建 RAG 提示模板类的实例
+    rag_prompt = RAGPrompts.rag_prompt()
+    # 2. 测试RAG基础模板.
+    result = rag_prompt.format(context="心血管内科是诊断和治疗心血管系统疾病的临床科室，常见疾病包括高血压、冠心病、心律失常等", question="心血管内科主要看什么病?", phone="12345678")
+    # 3. 打印结果
+    print(result)
+    print('♥️' * 30)
+
+    # 测试2: HyDE假设答案.
+    # 1. 创建 HyDE 提示模板类的实例
+    hyde_prompt = RAGPrompts.hyde_prompt()
+    # 2. 测试HyDE模板.
+    result = hyde_prompt.format(query="如何培养孩子的专注力")
+    # 3. 打印结果
+    print(result)
