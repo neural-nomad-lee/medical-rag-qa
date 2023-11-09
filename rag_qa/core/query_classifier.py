@@ -78,3 +78,22 @@ class QueryClassifier:
             # 2. 若模型不存在, 初始化新模型
             # 参1: 模型路径,  参2: 二分类任务.
             # 【修复】原代码此处是相对路径 "../models/bert-base-chinese"，
+            # 只在 cwd = rag_qa/ 时有效；从项目根或其他目录运行就 OSError。
+            # 改用上面已算好的绝对路径 bert_path（与 self.tokenizer 的加载路径一致）
+            self.model = BertForSequenceClassification.from_pretrained(self.bert_path, num_labels=2)
+            # 将模型移到指定设备
+            self.model.to(self.device)
+            # 记录初始化模型的日志
+            logger.info("初始化新 BERT 模型")
+
+
+    # todo 2.3 保存模型的方法 -> 将训练好的模型和分词器存储到本地.
+    def save_model(self):
+        self.model.save_pretrained(self.model_path)
+        self.tokenizer.save_pretrained(self.model_path)
+        logger.info(f"保存模型至: {self.model_path}")
+
+
+    # todo 2.4 数据预处理方法 -> 将文本和标签转换为BERT模型所需的输入格式.
+    def preprocess_data(self, texts, labels):
+        """
