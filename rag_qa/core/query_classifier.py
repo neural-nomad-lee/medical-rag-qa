@@ -58,3 +58,23 @@ class QueryClassifier:
 
         # 7. 加载模型: 初始化时, 自动调用load_model(), 确保模型可用.
         self.load_model()
+
+
+    # todo 2.2 加载模型方法 -> 从指定路径加载已训练模型, 若不存在则初始化新模型.
+    def load_model(self):
+        """
+        函数功能: 加载模型, 优先从self.model_path加载, 不存在则初始化基于 bert-base-chinese的新模型
+        :return:
+        """
+        # 1. 检查模型路径是否存在 -> 即: 是否有已训练的模型.
+        if os.path.exists(self.model_path):
+            # 加载预训练模型
+            self.model = BertForSequenceClassification.from_pretrained(self.model_path)
+            # 将模型移到指定设备
+            self.model.to(self.device)
+            # 记录加载成功的日志
+            logger.info(f"加载模型: {self.model_path}")
+        else:
+            # 2. 若模型不存在, 初始化新模型
+            # 参1: 模型路径,  参2: 二分类任务.
+            # 【修复】原代码此处是相对路径 "../models/bert-base-chinese"，
