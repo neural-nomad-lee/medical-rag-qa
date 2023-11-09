@@ -38,3 +38,23 @@ class QueryClassifier:
         # 改为：传 None 时用 rag_qa_path 推导绝对路径，从任何目录运行都正确。
         # 1. 存储模型路径: 用于后续加载或保存模型.
         self.model_path = model_path or os.path.join(rag_qa_path, 'models', 'bert_query_classifier')
+        # 2. 加载BERT分词器: 将文本转换成模型可以理解的输入.
+        # 2.1 拼接预训练BERT模型的本地路径（★存成实例属性，供 load_model() 使用）
+        self.bert_path = os.path.join(rag_qa_path, 'models', 'bert-base-chinese')
+        # 2.2 加载分词器.
+        self.tokenizer = BertTokenizer.from_pretrained(self.bert_path)
+
+        # 3. 初始化模型变量, 后续通过 load_model()加载或创建模型.
+        self.model = None
+
+        # 4. 选择模型运行设备.
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        # 5. 记录日志.
+        logger.info(f'使用设备: {self.device}')
+
+        # 6. 定义标签映射: 将标签映射为模型输出的索引. 即: 通用知识 -> 0, 专业咨询 -> 1.
+        self.label_map = {"通用知识": 0, "专业咨询": 1}
+
+        # 7. 加载模型: 初始化时, 自动调用load_model(), 确保模型可用.
+        self.load_model()
