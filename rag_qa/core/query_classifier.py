@@ -18,3 +18,23 @@ sys.path.insert(0, project_root)
 # 导入 PyTorch
 import torch
 # 导入日志
+from base.logger import logger
+# 导入numpy
+import numpy as np
+# 导入 Transformers 库
+from transformers import BertTokenizer, BertForSequenceClassification       # BERT分词器和序列分类模型.
+# Trainer: 负责实际执行训练过程(用模型, 数据和 TrainingArguments的配置跑训练) -> 相当于 训练任务的执行者, 按照 TrainingArguments(说明书)具体干活
+# TrainingArguments: 负责定义训练的各种参数和配置(例如: 训练多久, 多大批次, 保存到哪等...) -> 相当于 训练任务的说明书,提前写好训练的各种规则和细节.
+from transformers import Trainer, TrainingArguments
+# 导入train_test_split
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix
+
+# todo 2.定义QueryClassifier类: 封装BERT查询分类的完整流程 -> 模型加载, 训练, 评估, 预测...
+class QueryClassifier:
+    # todo 2.1 初始化方法: 配置模型路径, 加载分词器, 选择设备, 定义标签映射.
+    def __init__(self, model_path=None):
+        # 【修复】原默认值是相对路径 '../models/bert_query_classifier'，依赖 cwd。
+        # 改为：传 None 时用 rag_qa_path 推导绝对路径，从任何目录运行都正确。
+        # 1. 存储模型路径: 用于后续加载或保存模型.
+        self.model_path = model_path or os.path.join(rag_qa_path, 'models', 'bert_query_classifier')
