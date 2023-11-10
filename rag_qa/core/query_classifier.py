@@ -97,3 +97,23 @@ class QueryClassifier:
     # todo 2.4 数据预处理方法 -> 将文本和标签转换为BERT模型所需的输入格式.
     def preprocess_data(self, texts, labels):
         """
+        函数功能: 对文本进行分词, 阶段, 填充, 将标签转换为: 数字.
+        :param texts: 待处理的文本列表.
+        :param labels: 文本对应的标签列表.
+        :return: 处理后的编码 (input_ids, attention_mask) 和 数字标签列表.
+        """
+        # 1. 文本编码: 使用BERT分词器将文本转换为模型输入格式.
+        encodings = self.tokenizer(
+            texts,
+            truncation=True,        # 超过最大长度时截断
+            padding=True,           # 不足最大长度时填充.
+            max_length=128,         # 最大长度
+            return_tensors="pt"     # 返回张量
+        )
+        # 2. 标签转换: 将文本标签转换为数字
+        return encodings, [self.label_map[label] for label in labels]
+
+
+    # todo 2.5 创建数据集方法: 自定义Dataset类, 封装: 编码 和 标签.
+    def create_dataset(self, encodings, labels):
+        # 1. 定义内部Dataset类, 继承子torch.utils.data.Dataset
