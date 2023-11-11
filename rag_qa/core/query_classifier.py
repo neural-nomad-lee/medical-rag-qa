@@ -117,3 +117,23 @@ class QueryClassifier:
     # todo 2.5 创建数据集方法: 自定义Dataset类, 封装: 编码 和 标签.
     def create_dataset(self, encodings, labels):
         # 1. 定义内部Dataset类, 继承子torch.utils.data.Dataset
+        class Dataset(torch.utils.data.Dataset):
+            # 2. 初始化方法: 接收编码和标签, 创建内部Dataset类.
+            def __init__(self, encodings, labels):
+                super().__init__()
+                self.encodings = encodings  # 文本编码, 格式: (input_ids, attention_mask)
+                self.labels = labels        # 数字标签列表, 格式: [0, 1, 0, 1, ...]
+
+            # 3. 根据索引返回单条数据( 编码 + 标签)
+            def __getitem__(self, idx):
+                item = {key: val[idx] for key, val in self.encodings.items()}
+                item["labels"] = torch.tensor(self.labels[idx])
+                return item
+
+            # 4. 返回数据集长度.
+            def __len__(self):
+                return len(self.labels)
+
+        # 5. 返回实例化的Dataset对象.
+        return Dataset(encodings, labels)
+
