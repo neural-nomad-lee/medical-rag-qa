@@ -157,3 +157,23 @@ class QueryClassifier:
         # 3. 提取文本和标签, 分离查询文本和对应的分类标签.
         texts = [item["query"] for item in data]        # 格式: [查询文本1, 查询文本2, 查询文本3, ...]
         labels = [item["label"] for item in data]       # 格式: [标签1, 标签2, 标签3, ...]
+
+        # 4. 划分训练集和测试集. 80%用于训练, 20%用于验证. 固定随机种子确保结果可复现.
+        train_texts, val_texts, train_labels, val_labels = train_test_split(
+            texts, labels, test_size=0.2, random_state=42
+        )
+
+        # 5. 数据预处理: 将文本和标签转换为BERT模型所需的输入格式 -> 调用自定义的preprocess_data() 预处理数据的方法.
+        train_encodings, train_labels = self.preprocess_data(train_texts, train_labels)
+        val_encodings, val_labels = self.preprocess_data(val_texts, val_labels)
+
+        # 6. 创建数据集对象, 将编码 和 标签封装为PyTorch可识别的 Dataset对象.
+        train_dataset = self.create_dataset(train_encodings, train_labels)
+        val_dataset = self.create_dataset(val_encodings, val_labels)
+
+
+        # 7. 配置训练参数: 定义模型训练的超参数.
+        training_args = TrainingArguments(
+            # 设置模型和检查点保存的目录路径
+            output_dir="./bert_results",
+            # 设置训练的总轮数为3轮
