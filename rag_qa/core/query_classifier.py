@@ -137,3 +137,23 @@ class QueryClassifier:
         # 5. 返回实例化的Dataset对象.
         return Dataset(encodings, labels)
 
+
+    # todo 2.6 训练模型方法 -> 加载数据集, 预处理, 配置训练参数并训练模型.
+    def train_model(self, data_file="medical_classify_300.json"):
+        """
+        函数功能: 训练BERT分类模型, 区分查询分类为'通用知识' 和 '专业咨询'
+        :param data_file: 数据集文件路径.
+        :return: 无
+        """
+        # 1. 检查数据集文件是否存在.
+        if not os.path.exists(data_file):
+            logger.error(f"数据集文件 {data_file} 不存在")
+            raise FileNotFoundError(f"数据集文件 {data_file} 不存在")
+
+        # 2. 加载数据集, 从Json文件中读取查询文本和对应标签.
+        with open(data_file, "r", encoding="utf-8") as f:
+            data = [json.loads(value) for value in f.readlines()]
+
+        # 3. 提取文本和标签, 分离查询文本和对应的分类标签.
+        texts = [item["query"] for item in data]        # 格式: [查询文本1, 查询文本2, 查询文本3, ...]
+        labels = [item["label"] for item in data]       # 格式: [标签1, 标签2, 标签3, ...]
