@@ -177,3 +177,23 @@ class QueryClassifier:
             # 设置模型和检查点保存的目录路径
             output_dir="./bert_results",
             # 设置训练的总轮数为3轮
+            num_train_epochs=3,
+            # 设置每个设备（GPU/CPU）上的训练批次大小为8
+            per_device_train_batch_size=8,
+            # 设置每个设备（GPU/CPU）上的评估批次大小为8
+            per_device_eval_batch_size=8,
+            # 设置学习率预热步数为20步，训练初期学习率从0逐渐增加到设定值, 逐步提升学习率, 避免初始震荡.
+            warmup_steps=20,
+            # 设置权重衰减系数为0.01，用于防止过拟合
+            weight_decay=0.01,
+            # 设置日志文件保存的目录路径
+            logging_dir="./bert_logs",
+            # 设置每10个训练步骤记录一次日志
+            logging_steps=10,
+            # 设置评估策略为每个epoch结束后进行评估
+            evaluation_strategy="epoch",
+            # 设置模型保存策略为每个epoch结束后保存
+            save_strategy="epoch",
+            # 设置训练结束后加载最佳模型而非最后一个模型
+            load_best_model_at_end=True,
+            # 设置最多保存1个检查点文件，超出时自动删除旧的
