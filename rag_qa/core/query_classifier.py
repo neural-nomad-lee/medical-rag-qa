@@ -197,3 +197,23 @@ class QueryClassifier:
             # 设置训练结束后加载最佳模型而非最后一个模型
             load_best_model_at_end=True,
             # 设置最多保存1个检查点文件，超出时自动删除旧的
+            save_total_limit=1,
+            # 设置用于判断最佳模型的指标为评估损失
+            metric_for_best_model="eval_loss",
+            # 禁用FP16混合精度训练，使用FP32精度 简化配置, 需要GPU支持
+            fp16=False,
+            # 禁用第三方实验跟踪上报(避免安装了 wandb 时训练卡在登录提示)
+            report_to="none",
+        )
+
+        # 8. 初始化 Trainer: 封装模型, 训练参数, 数据集, 评估指标计算方法.
+        trainer = Trainer(
+            # 传入要训练的模型实例
+            model=self.model,
+            # 传入上面定义的训练参数配置
+            args=training_args,
+            # 传入训练数据集
+            train_dataset=train_dataset,
+            # 传入验证数据集，用于训练过程中评估模型性能
+            eval_dataset=val_dataset,
+            # 传入计算评估指标的函数，用于在验证集上计算准确率等指标
