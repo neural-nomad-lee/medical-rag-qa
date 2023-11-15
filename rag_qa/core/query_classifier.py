@@ -217,3 +217,23 @@ class QueryClassifier:
             # 传入验证数据集，用于训练过程中评估模型性能
             eval_dataset=val_dataset,
             # 传入计算评估指标的函数，用于在验证集上计算准确率等指标
+            compute_metrics=self.compute_metrics        # 自定义评估指标(准确率)
+        )
+        # 9. 训练模型
+        logger.info("开始训练 BERT 模型...")
+        trainer.train()
+        self.save_model()
+
+        # 10. 评估模型
+        self.evaluate_model(val_texts, val_labels)
+
+
+    # todo 2.7 计算评估指标方法 -> 计算模型在验证集上的准确率.
+    def compute_metrics(self, eval_pred):
+        """
+        函数功能: 计算分类任务的评估指标(准确率)
+        :param eval_pred:  包含模型输出logits 和 真实标签的元素.
+        :return: 准确率字典.
+        """
+        # 1. 模型输出的 logits 和 真实标签.
+        logits, labels = eval_pred
