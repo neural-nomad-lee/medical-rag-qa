@@ -296,3 +296,23 @@ class QueryClassifier:
         if self.model is None:
             # 模型未加载
             logger.error("模型未训练或加载!")
+            return '通用知识'
+
+        # 2. 对查询文本进行编码.
+        encoding = self.tokenizer(
+            query,
+            truncation=True,
+            padding=True,
+            max_length=128,
+            return_tensors="pt"
+        )
+
+        # 3. 将编码数据迁移到指定设备.
+        encoding = {k: v.to(self.device) for k, v in encoding.items()}
+
+        # 4. 模型推理 -> 不计算梯度, 提高效率.
+        with torch.no_grad():
+            # 4.1 获取模型输出 -> 包含logits
+            outputs = self.model(**encoding)
+            # 4.2 获取预测结果 -> 获取logits最大值对应的索引作为预测结果.
+            prediction = torch.argmax(outputs.logits, dim=1).item()
