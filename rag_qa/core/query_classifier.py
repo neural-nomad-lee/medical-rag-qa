@@ -237,3 +237,22 @@ class QueryClassifier:
         """
         # 1. 模型输出的 logits 和 真实标签.
         logits, labels = eval_pred
+        # 2. 取logits最大值对应的索引作为预测结果.
+        predictions = np.argmax(logits, axis=-1)
+        # 3. 计算准确率: 预测正确的样本占比
+        accuracy = (predictions == labels).mean()
+        # 4. 返回准确率字典.
+        return {"accuracy": accuracy}
+
+
+    # todo 2.8 评估模型方法: 生成分类报告和混淆矩阵, 全面分析模型性能.
+    def evaluate_model(self, texts, labels):
+        """
+        函数功能: 在给定文本和标签上评估模型, 输出分类报告和混淆矩阵.
+        :param texts:  待评估的文本列表
+        :param labels: 文本对应的真实标签(数字形式)
+        """
+        # 1. 对文本进行编码, 仅处理文本, 因为标签已经转换为数字了.
+        encodings = self.tokenizer(
+            texts,
+            truncation=True,
