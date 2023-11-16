@@ -256,3 +256,23 @@ class QueryClassifier:
         encodings = self.tokenizer(
             texts,
             truncation=True,
+            padding=True,
+            max_length=128,
+            return_tensors="pt"
+        )
+
+        # 2. 创建评估数据集.
+        dataset = self.create_dataset(encodings, labels)
+
+        # 3. 使用Trainer进行预测.
+        trainer = Trainer(model=self.model)
+        predictions = trainer.predict(dataset)
+
+        # 4. 解析预测结果: 取logits最大值对应的索引作为预测结果.
+        pred_labels = np.argmax(predictions.predictions, axis=-1)
+        true_labels = labels  # 直接使用数字标签
+
+        # 5. 记录评估结果到日志.
+        logger.info("分类报告:")
+        logger.info(classification_report(
+            true_labels,
