@@ -316,3 +316,23 @@ class QueryClassifier:
             outputs = self.model(**encoding)
             # 4.2 获取预测结果 -> 获取logits最大值对应的索引作为预测结果.
             prediction = torch.argmax(outputs.logits, dim=1).item()
+
+        # 5. 返回预测结果标签
+        return '专业咨询' if prediction == 1 else '通用知识'
+
+
+
+
+
+# todo 3. 测试代码.
+if __name__ == '__main__':
+    # 1. 实例化查询分类器 -> 自动加载模型, 若无则初始化新模型.
+    query_classify = QueryClassifier()
+
+    # 2. 训练模型
+    # data_file = '../classify_data/medical_classify_300.json'   # 医疗版训练集(300条)
+    # query_classify.train_model(data_file)
+
+    # 3. 示例预测: 对查询'门诊属于哪个部门'进行分类
+    result = query_classify.predict_category('门诊属于哪个部门')
+    print(result)
