@@ -276,3 +276,23 @@ class QueryClassifier:
         logger.info("分类报告:")
         logger.info(classification_report(
             true_labels,
+            pred_labels,
+            target_names=["通用知识", "专业咨询"]   # 指定标签名称, 使报告更易读.
+        ))
+
+        # 混淆矩阵: 展示预测标签 和 真实标签的匹配情况.
+        logger.info("混淆矩阵:")
+        logger.info(confusion_matrix(true_labels, pred_labels))
+
+
+    # todo 2.9 预测类别方法 -> 对单个查询文本进行分类预测.
+    def predict_category(self, query):
+        """
+        函数功能: 对单个查询文本进行类别预测 -> 通用知识 或者 专业咨询.
+        :param query: 待分类的查询文本
+        :return: 类别名称(文本标签)
+        """
+        # 1. 检查模型是否加载.
+        if self.model is None:
+            # 模型未加载
+            logger.error("模型未训练或加载!")
