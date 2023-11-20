@@ -58,3 +58,23 @@ conf = Config()
 # todo 3.定义VectorStore类: 封装向量库的核心操作 -> 集合管理, 文档入库, 混合检索, 结果处理.
 class VectorStore:
     # todo 3.1 初始化方法 -> 配置向量库连接, 加载模型, 初始化客户端.
+    def __init__(
+        self,
+        collection_name=conf.MILVUS_COLLECTION_NAME,        # Milvus集合名 -> 类似于SQL的表名, 这里我们叫: medrag_collection
+        host=conf.MILVUS_HOST,                              # Milvus主机地址
+        port=conf.MILVUS_PORT,                              # Milvus端口
+        database=conf.MILVUS_DATABASE_NAME                  # Milvus数据库名
+    ):
+        # 1. 存储Milvus的核心设置.
+        self.collection_name = collection_name
+        self.host = host
+        self.port = port
+        self.database = database
+
+        # 2. 初始化日志实例.
+        self.logger = logger
+
+        # 3. (扩展)选择模型运行设备 -> 优先使用GPU, 无GPU则用CPU
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.logger.info(f'使用设备: {self.device}')
+
