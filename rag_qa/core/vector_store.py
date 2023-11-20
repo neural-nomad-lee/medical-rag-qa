@@ -18,3 +18,23 @@ from pymilvus import MilvusClient, DataType, AnnSearchRequest, WeightedRanker
 # 导入 Document 类，用于创建文档对象, 即: 统一文档数据格式(含内容 + 元数据)
 from langchain_core.documents import Document
 # 导入 CrossEncoder，用于重排序和 NLI 判断 -> 优化检索结果的相关性排序.
+from sentence_transformers import CrossEncoder
+# 导入 hashlib 模块，用于生成唯一 ID 的哈希值 -> 作为Milvus的主键.
+import hashlib
+import sys, os
+# 说明：原代码是 `from document_processor import *`（裸导入），
+# sys.path 里只有 rag_qa/ 而没有 rag_qa/core/，所以这条导入会抛
+#   ModuleNotFoundError: No module named 'document_processor'
+# 一旦被导入（rag_qa/__init__.py 会导入本模块），整个 `from rag_qa import ...` 全部失败。
+# 注意：它在 vector_store.py 里其实只被注释掉的测试代码用到，
+# 属于"没用的导入却能把整个包拖崩"——典型的隐蔽故障。
+# 改成包内正确路径（rag_qa/ 已在 sys.path 中，见 rag_qa/__init__.py）：
+from rag_qa.core.document_processor import process_documents, load_documents_from_directory
+
+
+# todo 1. 路径配置模块. 定位当前脚本, RAG核心目录, 项目根目录, 确保自定义模块可导入.
+# 1.获取当前文件所在目录的绝对路径.
+local_path = os.path.abspath(os.path.dirname(__file__))
+# print(f'local_path: {local_path}')      # D:\workspace\ai_30_bj\integrated_qa_system\rag_qa\core
+
+# 2. 获取当前目录的上级目录.
