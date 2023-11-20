@@ -38,3 +38,23 @@ local_path = os.path.abspath(os.path.dirname(__file__))
 # print(f'local_path: {local_path}')      # D:\workspace\ai_30_bj\integrated_qa_system\rag_qa\core
 
 # 2. 获取当前目录的上级目录.
+rag_qa_path = os.path.abspath(os.path.dirname(local_path))
+# print(f'module_dir: {rag_qa_path}')     # D:\workspace\ai_30_bj\integrated_qa_system\rag_qa
+
+# 3. 获取项目根目录的绝对路径.
+project_root = os.path.dirname(rag_qa_path)
+# print(f'project_root: {project_root}')  # D:\workspace\ai_30_bj\integrated_qa_system
+
+# 4. 将项目根目录加入系统路径, 确保跨目录导入自定义模块(例如: config, logger)...
+sys.path.insert(0, project_root)
+
+from base.config import Config
+from base.logger import logger
+
+
+# todo 2.初始化全局配置 -> 实例化配置对象.
+conf = Config()
+
+# todo 3.定义VectorStore类: 封装向量库的核心操作 -> 集合管理, 文档入库, 混合检索, 结果处理.
+class VectorStore:
+    # todo 3.1 初始化方法 -> 配置向量库连接, 加载模型, 初始化客户端.
