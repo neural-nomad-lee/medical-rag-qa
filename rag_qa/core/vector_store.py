@@ -78,3 +78,23 @@ class VectorStore:
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.logger.info(f'使用设备: {self.device}')
 
+        # 4. 初始化BGE-Reranker重排序模型 -> 优化检索结果相关性排序.
+        # 4.1 拼接重排序模型的本地路径. 即: rag_qa/models/bge-reranker-large
+        reranker_path = os.path.join(rag_qa_path, 'models', 'bge-reranker-large')
+        # print(f'reranker_path: {reranker_path}')
+
+        # 4.2 加载模型 -> 指定运行设备,  模型用于计算'查询-文档'的相关性得分.
+        self.reranker = CrossEncoder(reranker_path, device=self.device)
+
+        # 5. 初始化BGE-M3模型 -> 用于生成文档和查询的向量表示.
+        # 5.1 拼接模型文件的本地路径. 即: rag_qa/models/bge-m3
+        m3_path = os.path.join(rag_qa_path, 'models', 'bge-m3')
+        # 5.2 加载模型 -> 模型用于生成文档和查询的向量表示.
+        self.embedding_function = BGEM3EmbeddingFunction(
+            model_name_or_path=m3_path,         # 模型本地路径
+            use_fp16=(self.device == 'cuda'),   # GPU时启用半精度计算(减少内存占用, 提升速度), CPU时禁用
+            device=self.device)
+
+        # 6. 获取BGE-M3稠密向量的维度: 固定输出1024维稠密向量.
+        self.dense_dim = self.embedding_function.dim['dense']
+        # print(f'稠密向量的维度: {self.dense_dim}')  # 结果: 1024
