@@ -98,3 +98,22 @@ class VectorStore:
         # 6. 获取BGE-M3稠密向量的维度: 固定输出1024维稠密向量.
         self.dense_dim = self.embedding_function.dim['dense']
         # print(f'稠密向量的维度: {self.dense_dim}')  # 结果: 1024
+
+        # 7. 初始化Milvus客户端, 建立: Milvus向量库连接.
+        # uri格式: http://主机地址:端口号, db_name 指定要连接的数据库.
+        # 【自动建库】全新 Milvus 实例不会自动创建业务库, 先在 default 库上检查并创建,
+        # 避免连接报 MilvusException: database not found.
+        _bootstrap = MilvusClient(uri=f"http://{self.host}:{self.port}")
+        if self.database not in _bootstrap.list_databases():
+            _bootstrap.create_database(self.database)
+            logger.info(f"已创建 Milvus 数据库: {self.database}")
+        _bootstrap.close()
+        self.client = MilvusClient(uri=f"http://{self.host}:{self.port}", db_name=self.database)
+
+        # 8. 调用'私有'方法 -> 创建新集合(若不存在) 或 加载已有集合(若存在)
+        self._create_or_load_collection()
+
+
+    # todo 3.2 私有方法: 创建新集合(若不存在) 或 加载已有集合(若存在)
+    def _create_or_load_collection(self):
+        # 1. 检查指定集合是否已存在(避免重复创建)
