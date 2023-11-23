@@ -117,3 +117,23 @@ class VectorStore:
     # todo 3.2 私有方法: 创建新集合(若不存在) 或 加载已有集合(若存在)
     def _create_or_load_collection(self):
         # 1. 检查指定集合是否已存在(避免重复创建)
+        if not self.client.has_collection(self.collection_name):
+            # 走这里, 说明集合不存在, 需要创建集合.
+            # 2. 创建集合 Schema，禁用自动 ID(手动用文档哈希作为主键)，启用动态字段
+            schema = self.client.create_schema(auto_id=False, enable_dynamic_field=True)
+            # 添加 ID 字段，作为主键，VARCHAR 类型，最大长度 100
+            schema.add_field(field_name="id", datatype=DataType.VARCHAR, is_primary=True, max_length=100)
+            # 添加文本字段，VARCHAR 类型，最大长度 65535
+            schema.add_field(field_name="text", datatype=DataType.VARCHAR, max_length=65535)
+            # 添加稠密向量字段，FLOAT_VECTOR 类型，维度由嵌入函数指定
+            schema.add_field(field_name="dense_vector", datatype=DataType.FLOAT_VECTOR, dim=self.dense_dim)
+            # 添加稀疏向量字段，SPARSE_FLOAT_VECTOR 类型
+            schema.add_field(field_name="sparse_vector", datatype=DataType.SPARSE_FLOAT_VECTOR)
+            # 添加父块 ID 字段，VARCHAR 类型，最大长度 100
+            schema.add_field(field_name="parent_id", datatype=DataType.VARCHAR, max_length=100)
+            # 添加父块内容字段，VARCHAR 类型，最大长度 65535
+            schema.add_field(field_name="parent_content", datatype=DataType.VARCHAR, max_length=65535)
+            # 添加科室类别字段，VARCHAR 类型，最大长度 50
+            schema.add_field(field_name="source", datatype=DataType.VARCHAR, max_length=50)
+            # 添加时间戳字段，VARCHAR 类型，最大长度 50
+            schema.add_field(field_name="timestamp", datatype=DataType.VARCHAR, max_length=50)
