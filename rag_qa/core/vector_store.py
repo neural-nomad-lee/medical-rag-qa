@@ -137,3 +137,23 @@ class VectorStore:
             schema.add_field(field_name="source", datatype=DataType.VARCHAR, max_length=50)
             # 添加时间戳字段，VARCHAR 类型，最大长度 50
             schema.add_field(field_name="timestamp", datatype=DataType.VARCHAR, max_length=50)
+
+            # 3.创建索引参数对象
+            index_params = self.client.prepare_index_params()
+            # 为稠密向量字段添加 IVF_FLAT 索引，度量类型为内积 (IP)
+            index_params.add_index(
+                field_name="dense_vector",
+                index_name="dense_index",
+                index_type="IVF_FLAT",
+                metric_type="IP",
+                params={"nlist": 128}
+            )
+            # 为稀疏向量字段添加 SPARSE_INVERTED_INDEX 索引，度量类型为内积 (IP)
+            index_params.add_index(
+                field_name="sparse_vector",
+                index_name="sparse_index",
+                index_type="SPARSE_INVERTED_INDEX",
+                metric_type="IP",
+                params={"drop_ratio_build": 0.2}        # 构建索引时,丢弃20%的低权重值(减少存储,噪声, 精度影响较小)
+            )
+
