@@ -157,3 +157,23 @@ class VectorStore:
                 params={"drop_ratio_build": 0.2}        # 构建索引时,丢弃20%的低权重值(减少存储,噪声, 精度影响较小)
             )
 
+            # 4. 创建 Milvus 集合，应用定义的 Schema 和索引参数
+            self.client.create_collection(collection_name=self.collection_name, schema=schema,
+                                          index_params=index_params)
+            # 5.记录创建集合的日志
+            logger.info(f"已创建集合 {self.collection_name}")
+
+        # 6.如果集合已存在
+        else:
+            # 记录加载集合的日志
+            logger.info(f"已加载集合 {self.collection_name}")
+        # 7. 将集合加载到内存，确保可立即查询
+        self.client.load_collection(self.collection_name)
+
+
+    # todo 3.3 定义函数 -> 将文档(子块) 转换为 向量并插入Milvus
+    # 【覆盖规则】主键 id 决定 upsert 行为：
+    #   · 普通文档子块: id = md5(子块内容)        -> 相同内容覆盖，不同内容并存
+    #   · 结构化问答条目: id = md5(归一化问题)    -> 同一问题再次入库时直接覆盖旧答案
+    #     (metadata 含 "question" 字段的文档视为结构化问答条目)
+    def add_documents(self, documents):
