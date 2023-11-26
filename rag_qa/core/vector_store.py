@@ -177,3 +177,23 @@ class VectorStore:
     #   · 结构化问答条目: id = md5(归一化问题)    -> 同一问题再次入库时直接覆盖旧答案
     #     (metadata 含 "question" 字段的文档视为结构化问答条目)
     def add_documents(self, documents):
+        # 1. 提取所有文档内容列表.
+        texts = [doc.page_content for doc in documents]     # 格式: ['文档1内容', '文档2内容', '文档3内容']
+
+        # 2. 使用BGE-M3模型生成文档向量.
+        # 输入: 文本列表(texts)
+        # 输出: 字典, 含'dense'(稠密向量) 和 'sparse'(稀疏向量)
+        embeddings = self.embedding_function(texts)
+
+        # 3. 初始化空列表.
+        data = []
+
+        # 4. 遍历每个文档, 组装插入数据(i -> 文档索引, doc是当前的Document对象)
+        for i, doc in enumerate(documents):
+            # 4.1 生成文档唯一的ID -> 文档哈希值
+            # encode('utf-8'):  将字符串转成字节流 -> 因为MD5哈希需要字节.
+            # hexdigest():      将哈希结果转为16进制字符串(32位, 适合作为ID)
+            # 结构化问答条目(带 question 元数据): 用"问题"生成主键,
+            #   相同问题答案不同时, upsert 会直接覆盖旧资料.
+            question = doc.metadata.get("question")
+            if question:
