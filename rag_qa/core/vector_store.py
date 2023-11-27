@@ -197,3 +197,23 @@ class VectorStore:
             #   相同问题答案不同时, upsert 会直接覆盖旧资料.
             question = doc.metadata.get("question")
             if question:
+                id_source = str(question).strip().lower()
+            else:
+                id_source = doc.page_content
+            text_hash = hashlib.md5(id_source.encode('utf-8')).hexdigest()
+            # 4.2 处理稀疏向量: BGE-M3返回的稀疏向量是矩阵, 需要转换为Milvus支持的字典格式.
+            sparse_vector = {}      # 初始化稀疏向量字典.
+            # 4.2.1 获取第i个文档的稀疏向量行 getrow(i) -> 获取矩阵的第i行.
+            row = embeddings['sparse'][[i]]
+            # (0, 5)	0.029301747679710388  -> (列索引, 权重)     shape:  (1, 250002)
+            # print(f'稀疏向量行: {row}, shape: {row.shape}')
+
+            # 4.2.2 获取稀疏向量的非零值索引 和 对应的权重.
+            indics = row.indices     # 非零值的索引列表, 例如: [10, 25, 50]
+            # print(f'非零值的索引列表: {indics}')
+            values = row.data        # 非    111零值的权重列表, 例如: [0.8, 0.5, 0.3]
+
+            # 4.2.3 组装稀疏向量字典, 将索引 和 权重配对.
+            for idx, value in zip(indics, values):      # {10:0.8, 25:0.5, 50:0.3...}
+                sparse_vector[idx] = value
+                # print(f'稀疏向量字典: {sparse_vector}, 稀疏向量字典长度: {len(sparse_vector)}')
