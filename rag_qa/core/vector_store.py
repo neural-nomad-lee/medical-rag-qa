@@ -217,3 +217,23 @@ class VectorStore:
             for idx, value in zip(indics, values):      # {10:0.8, 25:0.5, 50:0.3...}
                 sparse_vector[idx] = value
                 # print(f'稀疏向量字典: {sparse_vector}, 稀疏向量字典长度: {len(sparse_vector)}')
+
+                # 扩展: 查看稠密向量及维度.
+                # print(f'稠密向量: {embeddings["dense"][i]}, 稠密向量维度: {len(embeddings["dense"][i])}')
+
+            # 4.3 组装单条插入数据 -> 字段要和Schema完全对应.
+            data.append({
+                "id": text_hash,                                        # 唯一ID(md5哈希)
+                "text": doc.page_content,                               # 文档内容
+                "dense_vector": embeddings["dense"][i],                 # 稠密向量(BGE-M3生成)
+                "sparse_vector": sparse_vector,                         # 稀疏向量(组装后的字典形式)
+                "parent_id": doc.metadata["parent_id"],                 # 父文档ID(从元数据获取, 例如: doc_0_parent_0)
+                "parent_content": doc.metadata["parent_content"],       # 父文档内容(从元数据获取, 用于: 上下文补充)
+                "source": doc.metadata.get("source", "unknown"),        # 科室类别(从元数据获取, 例如: 心血管内科)
+                "timestamp": doc.metadata.get("timestamp", "unknown")   # 时间戳(从元数据获取)
+            })
+
+        # 5. 插入数据到Milvus -> 仅当data非空时执行.
+        if data:
+            # 使用upsert操作: 相同ID则更新, 不存在则插入(避免重复)
+            self.client.upsert(collection_name=self.collection_name, data=data)
