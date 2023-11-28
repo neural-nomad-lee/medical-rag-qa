@@ -237,3 +237,23 @@ class VectorStore:
         if data:
             # 使用upsert操作: 相同ID则更新, 不存在则插入(避免重复)
             self.client.upsert(collection_name=self.collection_name, data=data)
+            # 记录日志
+            logger.info(f'已插入/更新 {len(data)} 条数据到集合 {self.collection_name}')
+
+
+    # todo 3.4 定义函数 -> 混合检索(稠密 + 稀疏)  + 重排序, 返回精准父文档.
+    def hybrid_search_with_rerank(self, query, k=conf.RETRIEVAL_K, source_filter=None):
+        """
+        该函数用于执行: 混合检索(稠密 + 稀疏向量) + 结果重排序, 返回精准父文档
+        :param query: 用户查询文本, 例如: '高血压的日常注意事项有哪些'
+        :param k: 混合检索返回的TopK子块数量
+        :param source_filter: 科室过滤条件, 例如: 心血管内科, 仅检索该科室的文档, 默认None不过滤.
+        :return: 重排序后的Top-M个父文档列表(M是从conf中获取的)
+        """
+        # 1.使用 BGE-M3 嵌入函数生成查询的嵌入
+        query_embeddings = self.embedding_function([query])
+        # 2.获取查询的稠密向量
+        dense_query_vector = query_embeddings["dense"][0]
+
+        # 3.初始化查询的稀疏向量字典
+        sparse_query_vector = {}
