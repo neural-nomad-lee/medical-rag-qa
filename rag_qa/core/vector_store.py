@@ -257,3 +257,23 @@ class VectorStore:
 
         # 3.初始化查询的稀疏向量字典
         sparse_query_vector = {}
+        # 3.1 获取查询稀疏向量的第 0 行数据 -> 仅1个查询, 故取第0行.
+        row = query_embeddings["sparse"][[0]]
+        # 3.2 获取稀疏向量的非零值索引
+        indices = row.indices           # 索引列表
+        # 3.3 获取稀疏向量的非零值
+        values = row.data               # 权重列表
+        # 3.4 将索引和值配对，填充稀疏向量字典
+        for idx, value in zip(indices, values):
+            sparse_query_vector[idx] = value
+
+        # 4. 构建检索过滤表达式: 按科室过滤 -> 若source_filter存在.
+        filter_expr = f"source == '{source_filter}'" if source_filter else ""
+        # print(f'filter_expr: {filter_expr}')
+
+        # 5. 构建稠密向量检索请求: 定义稠密向量的检索参数.
+        dense_request = AnnSearchRequest(
+            data=[dense_query_vector],      # 查询向量, 列表格式.
+            anns_field='dense_vector',      # 检索的向量字段
+            param={'metric_type':'IP', "params": {'nprobe': 10}},  # 内积相似度, 检索时访问的聚类数(平衡速度和精度)
+            limit=k,            # 返回Tok-K结果
