@@ -277,3 +277,22 @@ class VectorStore:
             anns_field='dense_vector',      # 检索的向量字段
             param={'metric_type':'IP', "params": {'nprobe': 10}},  # 内积相似度, 检索时访问的聚类数(平衡速度和精度)
             limit=k,            # 返回Tok-K结果
+            expr=filter_expr    # 应用过滤表达式.
+        )
+
+        # 6. 构建稀疏向量检索请求: 构建稀疏向量的检索参数.
+        sparse_request = AnnSearchRequest(
+            data=[sparse_query_vector],      # 列表格式.
+            anns_field='sparse_vector',      # 检索的向量字段
+            param={'metric_type':'IP', "params": {}},  # 稀疏向量无需额外参数, 只需要指定内积相似度
+            limit=k,            # 检索Tok-K结果
+            expr=filter_expr    # 应用过滤表达式.
+        )
+
+        # 7. 创建加权排序器 -> 融合稠密和稀疏检索的结果, 按权重计算最终得分.
+        # 权重逻辑: 稠密向量侧重语义相似度, 稀疏向量侧重关键词匹配, 可根据业务调整.
+        ranker = WeightedRanker(1.0, 0.7)       # 稠密向量权重: 1.0, 稀疏向量权重: 0.7
+
+        # 8. 执行混合检索 -> 获取稠密和稀疏向量的检索结果., 返回Top-K子块
+        results = self.client.hybrid_search(
+            collection_name=self.collection_name,       # 目标集合
