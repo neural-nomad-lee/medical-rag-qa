@@ -296,3 +296,23 @@ class VectorStore:
         # 8. 执行混合检索 -> 获取稠密和稀疏向量的检索结果., 返回Top-K子块
         results = self.client.hybrid_search(
             collection_name=self.collection_name,       # 目标集合
+            reqs=[dense_request, sparse_request],       # 混合检索请求列表(稠密向量, 稀疏向量)
+            ranker=ranker,                              # 加权排序器
+            limit=k,                                    # 检索Tok-K结果
+            output_fields=["text", "parent_id", "parent_content", "source", "timestamp"]
+        )[0]        # 因为就1个查询, 所以返回第0个元素.
+        # print(f'results: {results}, 类型: {type(results)}, 数据量: {len(results)}')    # 列表类型.
+
+        # 9. 将检索结果转换为 LangChain Document对象 -> 统一格式, 便于后续处理.
+        sub_chunks = [self._doc_from_hit(hit["entity"]) for hit in results]
+        # print(f'子块列表: {sub_chunks}, 数据量: {len(sub_chunks)}')      # [Document对象, Document对象, ...]
+
+        # 10. 从子块中提取去重的父文档 -> 避免同一父块的多个子块重复返回.
+        parent_docs = self._get_unique_parent_docs(sub_chunks)
+        # print(f'(去重后)父文档列表: {parent_docs}, 数据量: {len(parent_docs)}')  # 数据量: 1
+
+        # 11. 重排序逻辑: 父文档数量<2时跳过排序(无需优化) -> 直接返回.
+        if len(parent_docs) < 2:
+            return parent_docs[:conf.CANDIDATE_M]
+
+        # 12. 父文档数量 >= 2时, 执行重排序, 提升相关性.
