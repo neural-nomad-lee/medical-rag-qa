@@ -316,3 +316,23 @@ class VectorStore:
             return parent_docs[:conf.CANDIDATE_M]
 
         # 12. 父文档数量 >= 2时, 执行重排序, 提升相关性.
+        if parent_docs:
+            # 12.1 构建'查询-文档'配对列表, 重排序模型需要改格式输入, 每个配对为 [query, doc_content]
+            pairs = [[query, doc.page_content] for doc in parent_docs]
+            # 12.2 计算相关得分.
+            scores = self.reranker.predict(pairs)
+            # print(f'相关得分: {scores}')
+            # 12.3 按得分降序排序 -> 将得分与父文档配对, 按得分从高到低排序.
+            ranked_parent_docs = [doc for _, doc in sorted(zip(scores, parent_docs), key=lambda pair:[0], reverse=True)]
+        else:
+            # 12.4 若父文档列表为空, 返回空列表.
+            ranked_parent_docs = []
+
+        # 13. 返回重排序后的父文档列表 -> Top-M个父文档
+        return ranked_parent_docs[:conf.CANDIDATE_M]
+
+
+
+    # todo 3.5 定义函数 -> 从子块列表中提取去重的父文档.
+    def _get_unique_parent_docs(self, sub_chunks):
+        # 初始化集合，用于存储已处理的父块内容（去重）
