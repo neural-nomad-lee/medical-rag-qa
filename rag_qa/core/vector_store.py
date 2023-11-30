@@ -336,3 +336,23 @@ class VectorStore:
     # todo 3.5 定义函数 -> 从子块列表中提取去重的父文档.
     def _get_unique_parent_docs(self, sub_chunks):
         # 初始化集合，用于存储已处理的父块内容（去重）
+        parent_contents = set()
+        # 初始化列表，用于存储唯一父文档
+        unique_docs = []
+        # 遍历所有子块
+        for chunk in sub_chunks:
+            # 获取子块的父块内容，默认为子块内容
+            parent_content = chunk.metadata.get("parent_content", chunk.page_content)
+            # 检查父块内容是否非空且未重复
+            if parent_content and parent_content not in parent_contents:
+                # 创建新的 Document 对象，包含父块内容和元数据
+                unique_docs.append(Document(page_content=parent_content, metadata=chunk.metadata))
+                # 将父块内容添加到去重集合
+                parent_contents.add(parent_content)
+        # 返回去重后的父文档列表
+        return unique_docs
+
+
+
+    # todo 3.6 定义函数 -> 将Milvus结果(hit) 转换为 LangChain Document对象.
+    def _doc_from_hit(self, hit):
