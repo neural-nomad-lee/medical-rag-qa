@@ -376,3 +376,23 @@ if __name__ == '__main__':
 
     # 2.向量入库动作
     # 2.1 定义遍历, 记录: 文档目录.
+    directory_path = '../data/medical_docs'
+    # 密集向量dense -> 抓整体语义, 避免'关键词不同但是意思相近'的文本被漏掉.
+    # COLBERT -> 抓词级上下文, 解决'同词异义'的匹配问题.
+    # 稀疏向量sparse -> 抓关键词权重, 确保'特定术语'能精准命中.
+    # embedding_function.dim -> {'dense': 1024, 'colbert_vecs': 1024, 'sparse': 250002}
+    # print(f'embedding_function.dim -> {vector_store.embedding_function.dim}')
+
+    # 2.2 获取所有的处理后的文档.
+    documents = process_documents(directory_path)       # 79个块
+    # 2.3 添加文档到Milvus中.
+    vector_store.add_documents(documents)
+
+    # # 3.混合检索 + 结果重拍, 例如: 查询'高血压的日常注意事项', 过滤心血管内科文档.
+    # # query = '高血压怎么预防'
+    query = '高血压的日常注意事项有哪些'
+    results = vector_store.hybrid_search_with_rerank(query, source_filter='心血管内科')
+    #
+    # # 打印检索将诶过, 查看结果数量 和 具体内容.
+    print(f'results: {results}')            # 结果列表: Document对象
+    print(f'results数量: {len(results)}')    # 结果数量: 0 ~ 2区间
