@@ -356,3 +356,23 @@ class VectorStore:
 
     # todo 3.6 定义函数 -> 将Milvus结果(hit) 转换为 LangChain Document对象.
     def _doc_from_hit(self, hit):
+        # 创建并返回 Document 对象，填充内容和元数据
+        return Document(
+            page_content=hit.get("text"),
+            metadata={
+                "parent_id": hit.get("parent_id"),
+                "parent_content": hit.get("parent_content"),
+                "source": hit.get("source"),
+                "timestamp": hit.get("timestamp")
+            }
+        )
+
+
+
+# todo 4.测试代码.
+if __name__ == '__main__':
+    # 1. 实例化VectorStore对象 -> 自动连接Milvus, 创建/加载集合.
+    vector_store = VectorStore()
+
+    # 2.向量入库动作
+    # 2.1 定义遍历, 记录: 文档目录.
