@@ -57,3 +57,22 @@ document_loaders = {
     # JPG 文件使用 OCRIMGLoader
     ".jpg": OCRIMGLoader,
     # PNG 文件使用 OCRIMGLoader
+    ".png": OCRIMGLoader,
+    # Markdown 文件使用 UnstructuredMarkdownLoader
+    ".md": UnstructuredMarkdownLoader
+}
+
+# todo 2. 核心加载函数模块 -> 从指定目录递归加载所有支持类型文件, 添加原数据并返回文档列表.
+def load_documents_from_directory(directory_path):
+    """
+    从指定目录(含子目录)加载所有支持类型的文件, 为每个文档添加原数据
+    :param directory_path: 目标文件夹的绝对路径.
+    :return: 加载完成的文档列表, 每个元素为 LangChain Document对象, 含: page_content 和 metadata
+    """
+    # 1. 初始化空列表 -> 用于存储所有加载成功的文档.
+    documents = []
+    # 2. 获取支持的文件扩展名结合
+    supported_extensions = document_loaders.keys()
+    # 3. 从目录名提取 '科室类别'原数据, 例如: '心血管内科_data' -> 提取'心血管内科'作为source
+    source = os.path.basename(directory_path).replace('_data', '')
+    # 4. 递归遍历目标目录及其所有子目录,  注意: os.walk()返回 当前目录路径, 子目录列表, 文件列表.
