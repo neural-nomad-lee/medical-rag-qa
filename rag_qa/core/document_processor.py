@@ -18,3 +18,22 @@ import os       # 文件操作
 #   第 1 次 → .../rag_qa/core  ｜ 第 2 次 → .../rag_qa ｜ 第 3 次 → .../integrated_qa_system（项目根）
 _PROJECT_ROOT = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+_NLTK_DIR = os.path.join(_PROJECT_ROOT, "nltk_data")
+if os.path.isdir(_NLTK_DIR):
+    os.environ.setdefault("NLTK_DATA", _NLTK_DIR)   # 仅在用户未设置时生效，不覆盖用户配置
+    try:
+        import nltk
+        if _NLTK_DIR not in nltk.data.path:
+            nltk.data.path.insert(0, _NLTK_DIR)      # 双保险：直接注入 nltk 搜索路径
+    except ImportError:
+        pass
+
+from langchain_community.document_loaders import TextLoader     # 加载纯文本文件(.txt)用的工具
+from langchain_community.document_loaders.markdown import UnstructuredMarkdownLoader    # 加载(.md)文件的工具, 保留标题,列表等结构化信息
+from langchain_text_splitters import MarkdownTextSplitter       # 针对 .md文档的文本分割器.
+from datetime import datetime               # 用于记录文档加载/处理时间.
+from rag_qa.med_text_spliter import ChineseRecursiveTextSplitter        # 适配中文医疗文本层级结构
+from rag_qa.med_text_spliter import AliTextSplitter                     # 阿里中文优化(医疗场景专用文本分割器)
+from rag_qa.med_document_loaders import OCRPDFLoader, OCRDOCLoader, OCRPPTLoader, OCRIMGLoader  # 医疗场景专用文档加载器(支持OCR, 处理扫描版病历、检查报告、医学影像文字等.)
+from base.config import Config      # 配置类
