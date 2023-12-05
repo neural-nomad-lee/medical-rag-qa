@@ -37,3 +37,23 @@ from rag_qa.med_text_spliter import ChineseRecursiveTextSplitter        # 适配
 from rag_qa.med_text_spliter import AliTextSplitter                     # 阿里中文优化(医疗场景专用文本分割器)
 from rag_qa.med_document_loaders import OCRPDFLoader, OCRDOCLoader, OCRPPTLoader, OCRIMGLoader  # 医疗场景专用文档加载器(支持OCR, 处理扫描版病历、检查报告、医学影像文字等.)
 from base.config import Config      # 配置类
+from base.logger import logger      # 日志类
+
+# todo 1. 定义配置类 -> 获取配置参数.
+# 1. 创建配置实例.
+conf = Config()
+# 2. 定义支持的文件类型及其对应的加载器字典
+document_loaders = {
+    # 文本文件使用 TextLoader
+    ".txt": TextLoader,
+    # PDF 文件使用 OCRPDFLoader
+    ".pdf": OCRPDFLoader,
+    # Word 文件使用 OCRDOCLoader
+    ".docx": OCRDOCLoader,
+    # PPT 文件使用 OCRPPTLoader
+    ".ppt": OCRPPTLoader,
+    # PPTX 文件使用 OCRPPTLoader
+    ".pptx": OCRPPTLoader,
+    # JPG 文件使用 OCRIMGLoader
+    ".jpg": OCRIMGLoader,
+    # PNG 文件使用 OCRIMGLoader
