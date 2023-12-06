@@ -76,3 +76,23 @@ def load_documents_from_directory(directory_path):
     # 3. 从目录名提取 '科室类别'原数据, 例如: '心血管内科_data' -> 提取'心血管内科'作为source
     source = os.path.basename(directory_path).replace('_data', '')
     # 4. 递归遍历目标目录及其所有子目录,  注意: os.walk()返回 当前目录路径, 子目录列表, 文件列表.
+    for root, _, files in os.walk(directory_path):
+        # 5. 遍历当前目录下的每个文件, 逐一处理.
+        for file in files:
+            # 5.1 构造文件的绝对路径  root + 文件名, 避免相对路径问题.
+            file_path = os.path.join(root, file)
+            # print(f'file_path: {file_path}')        # 例如: ../data/心血管内科_data\心血管内科常见病科普.md
+
+            # 5.2 提取文件扩展名并转为小写 -> 统一格式.
+            file_extension = os.path.splitext(file)[1].lower()
+            # print(f'file_extension: {file_extension}')
+
+            # 5.3 若文件类型在支持列表中, 执行加载逻辑.
+            if file_extension in supported_extensions:
+                try:
+                    # 5.3.1 根据文件扩展名获取对应的加载器 -> 创建加载器实例.
+                    loader_class = document_loaders[file_extension]
+                    # 5.3.2 实例化加载器.
+                    if file_extension == '.txt':
+                        loader = loader_class(file_path, encoding='utf-8')  # txt文件强制使用utf-8编码
+                    else:
