@@ -115,3 +115,23 @@ def load_documents_from_directory(directory_path):
                     logger.info(f'成功加载文件: {file_path}')
                 except Exception as e:
                     # 5.3.7 捕获异常 -> 输出异常信息, 继续处理下一个文件.
+                    logger.error(f'加载文件 {file_path} 失败: {str(e)}')
+            else:
+                # 5.4 若文件不再支持列表, 记录警告日志.
+                logger.warning(f'不支持的文件类型: {file_path}')
+
+    # 6. 返回加载完成的文档列表.
+    return documents
+
+
+# todo 3.文档处理核心函数 -> 加载文档后进行分层切分(父块 + 子块): 返回带元数据的子块列表.
+def process_documents(directory_path, parent_chunk_size=conf.PARENT_CHUNK_SIZE,
+                     child_chunk_size=conf.CHILD_CHUNK_SIZE,
+                     chunk_overlap=conf.CHUNK_OVERLAP):
+    """
+    加载文档并进行分层气氛: 先切成大粒度父块, 再将父块切成小粒度子块, 子块关联父块元数据.
+    :param directory_path:  文档目录路径
+    :param parent_chunk_size: 父块切分长度(大粒度, 例如: 1200)
+    :param child_chunk_size: 子块切分长度(小粒度, 例如: 300)
+    :param chunk_overlap: 子块重叠长度, 确保上下文关联, 例如: 50
+    :return:
