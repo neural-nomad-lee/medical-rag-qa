@@ -96,3 +96,22 @@ def load_documents_from_directory(directory_path):
                     if file_extension == '.txt':
                         loader = loader_class(file_path, encoding='utf-8')  # txt文件强制使用utf-8编码
                     else:
+                        loader = loader_class(file_path)
+                    # 5.3.3 调用加载器的load()方法, 加载文件内容 -> 返回文档列表, 单个文件可能拆分成多个Document.
+                    loaded_docs = loader.load()
+                    # print(f'加载文件: {loaded_docs}')
+                    # 5.3.4 给每个加载的文档添加元数据 -> 便于后续RAG检索时过滤/溯源.
+                    for doc in loaded_docs:
+                        # 为文档添加科室类别元数据, 例如: 心血管内科
+                        doc.metadata["source"] = source
+                        # 为文档添加文件路径元数据
+                        doc.metadata["file_path"] = file_path
+                        # 为文档添加当前时间戳元数据, 精确到秒
+                        doc.metadata["timestamp"] = datetime.now().isoformat()
+
+                    # 5.3.5 将添加元数据后的文档列表添加到总列表中.
+                    documents.extend(loaded_docs)
+                    # 5.3.6 记录INFO日志
+                    logger.info(f'成功加载文件: {file_path}')
+                except Exception as e:
+                    # 5.3.7 捕获异常 -> 输出异常信息, 继续处理下一个文件.
