@@ -135,3 +135,22 @@ def process_documents(directory_path, parent_chunk_size=conf.PARENT_CHUNK_SIZE,
     :param child_chunk_size: 子块切分长度(小粒度, 例如: 300)
     :param chunk_overlap: 子块重叠长度, 确保上下文关联, 例如: 50
     :return:
+        child_chunks: 切分后的子块列表(每个子块含父块关联信息)
+    """
+
+    # 1. 调用加载函数 -> 从指定目录加载所有文档
+    documents = load_documents_from_directory(directory_path)
+    # 记录加载的文档总数日志
+    logger.info(f"加载的文档数量: {len(documents)}")
+
+    # 2. 初始化父块和子块分词器（通用）
+    parent_splitter = ChineseRecursiveTextSplitter(chunk_size=parent_chunk_size, chunk_overlap=chunk_overlap)
+    child_splitter = ChineseRecursiveTextSplitter(chunk_size=child_chunk_size, chunk_overlap=chunk_overlap)
+    # 初始化 Markdown 专用分词器
+    markdown_parent_splitter = MarkdownTextSplitter(chunk_size=parent_chunk_size, chunk_overlap=chunk_overlap)
+    markdown_child_splitter = MarkdownTextSplitter(chunk_size=child_chunk_size, chunk_overlap=chunk_overlap)
+
+    # 3. 初始化子块列表, 存储最终切分结果.
+    child_chunks = []
+
+    # 4. 遍历每个原始文档 -> 带索引i, 用于生成唯一ID
