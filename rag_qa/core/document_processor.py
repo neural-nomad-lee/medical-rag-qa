@@ -154,3 +154,23 @@ def process_documents(directory_path, parent_chunk_size=conf.PARENT_CHUNK_SIZE,
     child_chunks = []
 
     # 4. 遍历每个原始文档 -> 带索引i, 用于生成唯一ID
+    for i, doc in enumerate(documents):
+        # 4.1 获取文件扩展名 -> 用于判断是否是MarkDown文件, 选择对应的切分器.
+        file_extension = os.path.splitext(doc.metadata.get("file_path", ""))[1].lower()
+        is_markdown = (file_extension == '.md')     # 标记是否是MarkDown文件
+
+        # 4.2 根据文件类型选择切分器.
+        parent_splitter_to_use = markdown_parent_splitter if is_markdown else parent_splitter       # 父块切分器
+        child_splitter_to_use = markdown_child_splitter if is_markdown else child_splitter          # 子块切分器
+        logger.info(f'处理文档: {doc.metadata["file_path"]}, 使用切分器: {"Markdown" if is_markdown else "ChineseRecursive"}')
+
+        # 4.3 将文档切分成父块 -> 大粒度, 保留较多上下文.
+        # parent_docs的格式: [父块1Document对象, 父块2Document对象, ...]
+        parent_docs = parent_splitter_to_use.split_documents([doc])     # 传入列表格式, split_documents()函数要的是可迭代类型.
+
+        # 5. 遍历每个父块 -> 父块切分成子块 -> 小粒度, 并于精准匹配.
+        for j, parent_doc in enumerate(parent_docs):
+            # 5.1 生成父块唯一id, 格式: doc_文档索引_parent_父块索引
+            parent_id = f"doc_{i}_parent_{j}"
+            # 5.2 给父块添加元数据 -> 唯一的ID 和 自身内容, 供子块关联.
+            parent_doc.metadata["parent_id"] = parent_id
