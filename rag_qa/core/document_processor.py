@@ -174,3 +174,22 @@ def process_documents(directory_path, parent_chunk_size=conf.PARENT_CHUNK_SIZE,
             parent_id = f"doc_{i}_parent_{j}"
             # 5.2 给父块添加元数据 -> 唯一的ID 和 自身内容, 供子块关联.
             parent_doc.metadata["parent_id"] = parent_id
+            parent_doc.metadata["content"] = parent_doc.page_content        # 存储父块完整内容.
+            # 如下输出格式为: 父块: ../data/心血管内科_data\心血管内科常见病科普.md, 索引: 9, 唯一ID: doc_0_parent_9
+            # print(f'父块: {parent_doc.metadata["file_path"]}, 索引: {j}, 唯一ID: {parent_id}\n\n')
+
+            # 5.3 将父块切分成子块 -> 小粒度, 并于精准匹配.
+            sub_chunks = child_splitter_to_use.split_documents([parent_doc])
+
+            # 6. 遍历每个子块 -> 添加父块关联信息.
+            for k, sub_chunk in enumerate(sub_chunks):
+                # 6.1 添加子块关联父块信息 -> 父块ID, 父块内容, 子块内容.
+                sub_chunk.metadata["parent_id"] = parent_id                         # 关联父块ID
+                sub_chunk.metadata["parent_content"] = parent_doc.page_content      # 关联父块的完整内容.
+
+                # 6.2 生成子块唯一的ID, 格式: 父块ID_child_子块索引.
+                sub_chunk.metadata["id"] = f'{parent_id}_child_{k}'
+                # 6.3 将子块添加到结果列表.
+                child_chunks.append(sub_chunk)
+
+    # 7. 记录日志.
