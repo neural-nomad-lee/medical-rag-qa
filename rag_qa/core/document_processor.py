@@ -193,3 +193,23 @@ def process_documents(directory_path, parent_chunk_size=conf.PARENT_CHUNK_SIZE,
                 child_chunks.append(sub_chunk)
 
     # 7. 记录日志.
+    logger.info(f"切分完成的子块总数: {len(child_chunks)}")
+    # 8. 返回子块列表.
+    return child_chunks
+
+
+
+# todo n. 测试代码
+if __name__ == '__main__':
+    # # 1. 定义测试目录路径 -> 目标文件夹, 含待加载的各类文件.
+    # directory_path = '../data/心血管内科_data'
+    # # 2. 调用核心加载函数 -> 加载目录下所有的支持类型文件.
+    # documents = load_documents_from_directory(directory_path)
+    # # 3. 打印结果 -> 生产环境下, 需要注释.
+    # print(f'加载完成的文档总数: {len(documents)}')
+    # print(f'前1个文档详情: {documents[0] if documents else "未加载到任何文档"}')
+
+    # 4. 调用文档处理函数 -> 加载指定目录并切分文档.
+    chunks = process_documents('../data/medical_docs', conf.PARENT_CHUNK_SIZE, conf.CHILD_CHUNK_SIZE, conf.CHUNK_OVERLAP)
+    print(f'切分完成的子块总数: {len(chunks)}')
+    print(f'前1个子块详情: {chunks[0] if chunks else "未切分到任何子块"}')
