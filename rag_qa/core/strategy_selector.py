@@ -87,3 +87,25 @@ class StrategySelector:
             input_variables=["query"],
         )
 
+
+    # todo 1.4 定义方法，选择检索策略 -> 选择检索策略的核心方法 -> 整合模板和大模型调用, 返回最终策略.
+    def select_strategy(self, query):
+        """
+        函数作用: 根据用户查询, 选择最合适的检索增强策略.
+        :param query: 用户输入的查询文本(字符串)
+        :return: 字符串 -> 选中的检索策略名称 -> 例如: 直接检索, 子查询检索...
+        """
+        # 1. 格式化提示模板: 将用户查询填充到提示模板的query为止, 生成发给大模型的完整提示, 调用大模型获取策略.
+        strategy = self.call_dashscope(self.strategy_prompt_template.format(query=query)).strip()
+        # 2. 记录日志.
+        logger.info(f"为查询 '{query}' 选择的检索策略：{strategy}")
+        # 3. 返回选中的策略.
+        return strategy
+
+if __name__ == '__main__':
+    # 1. 实例化策略选择器
+    ss = StrategySelector()
+    # 2. 测试策略选择
+    # ss.select_strategy('糖尿病患者饮食上需要注意什么')
+    # ss.select_strategy('对比高血压和低血压的症状差异, 从发病机制, 典型表现, 处理方式三个方面分析')
+    ss.select_strategy('如何养成规律作息的习惯')
