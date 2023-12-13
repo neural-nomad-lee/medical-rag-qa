@@ -18,3 +18,24 @@ current_dir = os.path.dirname(os.path.abspath(__file__))        # D:\workspace\a
 # 2. 获取当前目录的上级目录.
 rag_qa_path = os.path.dirname(current_dir)                      # D:\workspace\ai_30_bj\integrated_qa_system\rag_qa
 # 3. 将rag_qa目录添加到Python的模块搜索路径.
+sys.path.insert(0, rag_qa_path)
+# 4. 获取项目根目录.
+project_root = os.path.dirname(rag_qa_path)                     # D:\workspace\ai_30_bj\integrated_qa_system
+# 5. 将项目根目录添加到Python的模块搜索路径.
+sys.path.insert(0, project_root)
+
+from base.config import Config                  # 配置文件
+from base.logger import logger                  # 日志对象
+
+
+# 优化1: 新增导包内容.
+# ============================================================
+# 【无独显 / 低内存机器的关键优化：删除无用的 BERT 加载】
+# ------------------------------------------------------------
+# 这里原本是：
+#     from transformers import BertTokenizer, BertModel
+#     local_model_path = ...\models\bert-base-chinese      （原为写死的 Windows 路径）
+#     tokenizer = BertTokenizer.from_pretrained(local_model_path)
+#     model     = BertModel.from_pretrained(local_model_path)
+#
+# 实测问题（在这个文件里）：
