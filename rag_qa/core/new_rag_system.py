@@ -39,3 +39,23 @@ from base.logger import logger                  # 日志对象
 #     model     = BertModel.from_pretrained(local_model_path)
 #
 # 实测问题（在这个文件里）：
+#   · 这两个变量【只被赋值，从未被读取】—— 全文件再无 "tokenizer"/"model" 引用
+#     （真正需要 BERT 的是 query_classifier.py，它自己会加载）
+#   · 代价：import 阶段就吃掉约 885 MB 内存 + 7.3 秒启动时间
+#     （bert-base-chinese 是 102.3 M 参数的模型）
+#   · 对 16 GB 内存且无独显的机器，这是纯浪费，还会挤占 BGE-M3/Reranker 的空间
+#   · 更糟的是：原代码写死了 Windows 绝对路径，换系统直接 OSError，且发生在 import 阶段
+#
+# 所以：整段删除。RAG 的意图识别照旧由 QueryClassifier 负责，功能完全不受影响。
+# ============================================================
+
+from openai import OpenAI
+
+
+# 加载项目配置
+conf = Config()
+
+
+# todo 3. 定义RAGSystem类 -> 封装RAG系统的完整流程, 即: 查询分类 -> 策略选择 -> 文档检索 -> 答案生成
+class RAGSystem:
+    # todo 3.1 初始化方法 -> 创建RAG系统所需的核心组件 -> 向量库, 大模型, 分类器...
