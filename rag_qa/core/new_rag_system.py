@@ -59,3 +59,24 @@ conf = Config()
 # todo 3. 定义RAGSystem类 -> 封装RAG系统的完整流程, 即: 查询分类 -> 策略选择 -> 文档检索 -> 答案生成
 class RAGSystem:
     # todo 3.1 初始化方法 -> 创建RAG系统所需的核心组件 -> 向量库, 大模型, 分类器...
+    def __init__(self, vector_store, llm):
+        """
+        函数作用: 初始化RAG系统
+        :param vector_store: 向量数据库对象 -> 用于存储和检索文档, 提供相似性搜索功能.
+        :param llm: 大语言模型调用函数 -> 接收提示文本, 返回模型生成的回答.
+        """
+        # 1. 保存向量数据库对象.
+        self.vector_store = vector_store
+        # 2. 保存大模型调用函数 -> 用于生成答案, 子查询, 假设答案等...
+        self.llm = llm
+        # 3. 加载RAG提示模板 -> 定义生成答案时的固定格式.
+        self.rag_prompt = RAGPrompts.rag_prompt()
+        # 4. 初始化查询分类器 -> 用于判断用户查询是'通用知识'还是'专业咨询'
+        # 4.1 拼接分类模型的路径.
+        classifier_path = os.path.join(rag_qa_path, 'models', 'bert_query_classifier')
+        # 4.2 创建查询分类器实例.
+        self.query_classifier = QueryClassifier(classifier_path)
+        # 5. 初始化策略选择器 -> 用于专业咨询的检索策略选择.
+        self.strategy_selector = StrategySelector()
+
+
