@@ -80,3 +80,23 @@ class RAGSystem:
         self.strategy_selector = StrategySelector()
 
 
+    # todo 3.2 定义私有方法，使用假设文档进行检索（HyDE） -> 生成假设答案, 用假设答案检索相关文档.
+    def _retrieve_with_hyde(self, query, source_filter=None):
+        """
+        函数作用: 针对于抽象/开放性查询, 先生成假设性答案, 再用假设答案检索文档 -> 解决 抽象查询 直接检索关键词 匹配度低 的问题.
+        :param query: 用户的原始查询文本(str).
+        :param source_filter: 检索来源过滤条件(str或者None), 例如: 心血管内科表示只检索与心血管内科相关的文档,  None表示不过滤.
+        :return: list[Document], 每个Document对象的page_content属性为文档文本, 用于后续生成答案的上下文.
+        """
+        logger.info(f"使用 HyDE 策略进行检索 (查询: '{query}')")
+        #  1.获取假设问题生成的 Prompt 模板
+        hyde_prompt_template = RAGPrompts.hyde_prompt()  # 使用 template 后缀区分
+        #  2.调用大语言模型生成假设答案
+        try:
+            hypo_answer = self.llm(hyde_prompt_template.format(query=query)).strip()
+            logger.info(f"HyDE 生成的假设答案: '{hypo_answer}'")
+            # 3.使用假设答案进行检索，并返回检索结果
+            #  注意：HyDE 通常只用于生成检索向量，不一定需要 rerank 这一步，但这里复用了
+            return self.vector_store.hybrid_search_with_rerank(
+                hypo_answer,                    # 检索关键词: 生成的假设答案.
+                k=conf.RETRIEVAL_K,             # 使用 K 而非 M
