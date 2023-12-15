@@ -100,3 +100,23 @@ class RAGSystem:
             return self.vector_store.hybrid_search_with_rerank(
                 hypo_answer,                    # 检索关键词: 生成的假设答案.
                 k=conf.RETRIEVAL_K,             # 使用 K 而非 M
+                source_filter=source_filter     # 应用来源过滤条件.
+            )
+        except Exception as e:
+            logger.error(f"HyDE 策略执行失败: {e}")
+            return []
+
+
+    # todo 3.3 定义私有方法，使用子查询进行检索 -> 将复杂查询拆分为子查询, 分别检索后合并结果.
+    def _retrieve_with_subqueries(self, query, source_filter=None):
+        """
+        函数作用: 针对于多实体/多方面的复杂查询, 拆分为多个简单子查询, 分别检索后合并去重 -> 解决多维度查询检索不全面的问题.
+        :param query: 用户的原始查询文本.
+        :param source_filter: 检索来源过滤条件(str或者None), 例如: 呼吸内科表示只检索与呼吸内科相关的文档,  None表示不过滤.
+        :return: list[Document]对象.
+        """
+        logger.info(f"使用子查询策略进行检索 (查询: '{query}')")
+        #   获取子查询生成的 Prompt 模板
+        subquery_prompt_template = RAGPrompts.subquery_prompt()  # 使用 template 后缀区分
+        try:
+            #   调用大语言模型生成子查询列表
