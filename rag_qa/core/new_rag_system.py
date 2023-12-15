@@ -141,3 +141,23 @@ class RAGSystem:
 
             #   对所有检索结果进行去重 (基于对象内存地址，如果 Document 内容相同但对象不同则无法去重)
             #   更可靠的去重方式是基于文档内容或 ID
+            unique_docs_dict = {doc.page_content: doc for doc in all_docs}  # 基于内容去重
+            unique_docs = list(unique_docs_dict.values())
+
+            logger.info(f"所有子查询共检索到 {len(all_docs)} 个文档, 去重后剩 {len(unique_docs)} 个")
+            #   返回去重后的文档，限制数量 (是否需要在此处限制? retrieve_and_merge 末尾会限制)
+            # return unique_docs[: Config.CANDIDATE_M]
+            return unique_docs  # 返回所有唯一文档，让 retrieve_and_merge 处理数量
+
+        except Exception as e:
+            logger.error(f"子查询策略执行失败: {e}")
+            return []
+
+
+    #  todo 3.4 定义私有方法，使用回溯问题进行检索 -> 将复杂查询简化为基础问题后再检索.
+    def _retrieve_with_backtracking(self, query, source_filter=None):
+        logger.info(f"使用回溯问题策略进行检索 (查询: '{query}')")
+        #   获取回溯问题生成的 Prompt 模板
+        backtrack_prompt_template = RAGPrompts.backtracking_prompt()  # 使用 template 后缀区分
+        try:
+            #   调用大语言模型生成回溯问题
