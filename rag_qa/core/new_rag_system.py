@@ -161,3 +161,24 @@ class RAGSystem:
         backtrack_prompt_template = RAGPrompts.backtracking_prompt()  # 使用 template 后缀区分
         try:
             #   调用大语言模型生成回溯问题
+            simplified_query = self.llm(backtrack_prompt_template.format(query=query)).strip()
+            logger.info(f"生成的回溯问题: '{simplified_query}'")
+            #   使用回溯问题进行检索，并返回检索结果
+            return self.vector_store.hybrid_search_with_rerank(
+                simplified_query, k=conf.RETRIEVAL_K, source_filter=source_filter  # 使用 K
+            )
+        except Exception as e:
+            logger.error(f"回溯问题策略执行失败: {e}")
+            return []
+
+
+    # todo 3.5 核心方法: 根据检索策略检索文档, 用 合并/筛选最终上下文对象.
+    def retrieve_and_merge(self, query, source_filter=None, strategy=None):  # 新增 strategy 参数
+        """
+        函数作用: 统一入口: 根据指定策略(或自动选择策略)调用对应检索方法, 筛选最终用于生成答案的上下文文档.
+        :param query: 用户的原始查询文本 -> str, 传递给策略选择器 和 检索方法.
+        :param source_filter: 检索来源过滤条件
+        :param strategy: 指定检索策略, 可选: 直接检索, 回溯问题检索...
+        :return: list[Document]
+        """
+        # 1. 如果未指定检索策略，自动选择检索策略.
