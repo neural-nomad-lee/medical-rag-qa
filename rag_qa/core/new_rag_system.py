@@ -120,3 +120,24 @@ class RAGSystem:
         subquery_prompt_template = RAGPrompts.subquery_prompt()  # 使用 template 后缀区分
         try:
             #   调用大语言模型生成子查询列表
+            subqueries_text = self.llm(subquery_prompt_template.format(query=query)).strip()
+            subqueries = [q.strip() for q in subqueries_text.split("\n") if q.strip()]
+            logger.info(f"生成的子查询: {subqueries}")
+            if not subqueries:
+                logger.warning("未能生成有效的子查询")
+                return []
+
+            #  初始化空列表，用于存储所有子查询的检索结果
+            all_docs = []
+            #   遍历每个子查询
+            for sub_q in subqueries:
+                #   使用子查询进行检索，并将结果添加到列表中
+                #   这里对每个子查询都执行了 hybrid search + rerank，开销可能较大
+                docs = self.vector_store.hybrid_search_with_rerank(
+                    sub_q, k=conf.RETRIEVAL_K, source_filter=source_filter  # 应用来源过滤条件  # 使用 K
+                )
+                all_docs.extend(docs)
+                logger.info(f"子查询 '{sub_q}' 检索到 {len(docs)} 个文档")
+
+            #   对所有检索结果进行去重 (基于对象内存地址，如果 Document 内容相同但对象不同则无法去重)
+            #   更可靠的去重方式是基于文档内容或 ID
