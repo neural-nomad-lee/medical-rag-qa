@@ -182,3 +182,23 @@ class RAGSystem:
         :return: list[Document]
         """
         # 1. 如果未指定检索策略，自动选择检索策略.
+        if not strategy:
+            strategy = self.strategy_selector.select_strategy(query)
+
+        # 2. 根据策略调用对应的检索方法. -> 获取候选文档列表.
+        ranked_sub_chunks = []  # 初始化
+        if strategy == "回溯问题检索":
+            ranked_sub_chunks = self._retrieve_with_backtracking(query)
+        elif strategy == "子查询检索":
+            ranked_sub_chunks = self._retrieve_with_subqueries(query)  # 返回的是唯一文档列表
+            # 注意：子查询返回的是已 rerank 过的父文档或子块列表，后续合并逻辑可能需要调整
+            # 当前实现中，子查询返回的是初步检索（可能已rerank）的块，再进行合并
+        elif strategy == "假设问题检索":
+            ranked_sub_chunks = self._retrieve_with_hyde(query)
+        else:  # 默认或“直接检索”
+            logger.info(f"使用直接检索策略 (查询: '{query}')")
+            ranked_sub_chunks = self.vector_store.hybrid_search_with_rerank(
+                query, k=conf.RETRIEVAL_K, source_filter=source_filter
+            )  # 注意 hybrid_search_with_rerank 返回的是 rerank 后的父文档
+
+        # 3. 选择最终上下文文档, 截取前conf.CANDIDATE_M个文档(控制上下文长度, 避免LLM输入超限)
