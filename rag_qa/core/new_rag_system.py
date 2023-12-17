@@ -223,3 +223,23 @@ class RAGSystem:
         :param history: 对话历史(列表, 可选), 包含字典: {'question': 问题, 'answer': 答案}
         :return: 生成器, 逐段返回答案文本(字符串)
         """
+        # 记录查询开始时间, 用于计算处理耗时
+        start_time = time.time()
+        logger.info(f"开始处理查询: '{query}', 科室过滤: {source_filter}")
+
+        # 1. 验证并处理对话历史, 确保格式正确, 只保留最近5轮
+        if history is not None and not isinstance(history, list):
+            logger.warning(f"无效的历史格式: {type(history)}，忽略历史")
+            history = []
+        elif history:
+            history = history[-5:]  # 限制最多5轮 -> 即: 限制历史长度, 避免上下文过程.
+            for h in history:
+                if not (isinstance(h, dict) and "question" in h and "answer" in h):
+                    logger.warning(f"无效的历史条目: {h}，忽略历史")
+                    history = []
+                    break
+
+        # 2. 构造历史上下文, 格式化历史记录为字符串.
+        history_context = ""
+        if history:
+            history_context = "\n".join(
