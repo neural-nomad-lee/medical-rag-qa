@@ -202,3 +202,24 @@ class RAGSystem:
             )  # 注意 hybrid_search_with_rerank 返回的是 rerank 后的父文档
 
         # 3. 选择最终上下文文档, 截取前conf.CANDIDATE_M个文档(控制上下文长度, 避免LLM输入超限)
+        logger.info(f"策略 {strategy} 检索到 {len(ranked_sub_chunks)} 个候选文档")
+        final_context_docs = ranked_sub_chunks[: conf.CANDIDATE_M]      # 截取前 conf.CANDIDATE_M 个文档
+        logger.info(f"最终选取 {len(final_context_docs)} 个文档作为上下文")
+
+        # 4. 返回最终的上下文文档
+        return final_context_docs
+
+
+    # 优化2
+    # todo 3.6 定义方法，生成答案
+    # 【修复】本方法必须是"真正的生成器"(函数体内使用 yield)：
+    #   调用方 new_main.py:274 以 `for token in self.rag_system.generate_answer(...)` 消费，
+    #   若用 return 返回单个对象会破坏流式契约；改用 yield from 委托给流式 LLM 生成器。
+    def generate_answer(self, query, source_filter=None, history=None):
+        """
+        函数作用: 根据查询类型选择直接用LLM或者执行RAG流程, 支持流式输出.
+        :param query: 用户录入的原始查询文本(字符串形式)
+        :param source_filter: 科室过滤条件, 仅对'专业咨询'生效.
+        :param history: 对话历史(列表, 可选), 包含字典: {'question': 问题, 'answer': 答案}
+        :return: 生成器, 逐段返回答案文本(字符串)
+        """
