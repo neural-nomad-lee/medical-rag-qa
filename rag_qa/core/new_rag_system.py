@@ -243,3 +243,23 @@ class RAGSystem:
         history_context = ""
         if history:
             history_context = "\n".join(
+                [f"Q: {h['question']}\nA: {h['answer']}" for h in history]
+            )
+            logger.info(f"使用对话历史: {history_context[:100]}...")
+
+        # 3. 判断查询类型 -> 通过分类器区分通用知识 和 专业咨询.
+        query_category = self.query_classifier.predict_category(query)
+        logger.info(f"查询分类结果：{query_category} (查询: '{query}')")
+
+        #  4. 如果查询属于“通用知识”类别，则直接使用 LLM 回答, 专业咨询则进行 RAG 检索.
+        if query_category == "通用知识":
+            logger.info("查询为通用知识，直接调用 LLM")
+            prompt_input = self.rag_prompt.format(
+                context="", history=history_context, question=query, phone=conf.CUSTOMER_SERVICE_PHONE
+            )  # 不使用上下文
+            try:
+                # 流式输出: 逐段 yield 大模型生成的答案.
+                for token in self.llm(prompt_input):
+                    yield token
+            except Exception as e:
+                logger.error(f"直接调用 LLM 失败: {e}")
