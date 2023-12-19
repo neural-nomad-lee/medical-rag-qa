@@ -263,3 +263,24 @@ class RAGSystem:
                     yield token
             except Exception as e:
                 logger.error(f"直接调用 LLM 失败: {e}")
+                yield f"抱歉，处理您的通用知识问题时出错。请联系人工客服：{conf.CUSTOMER_SERVICE_PHONE}"
+            processing_time = time.time() - start_time
+            logger.info(
+                f"通用知识查询处理完成 (耗时: {processing_time:.2f}s, 查询: '{query}')"
+            )
+            return
+
+        #   否则，进行 RAG 检索并生成答案
+        logger.info("查询为专业咨询，执行 RAG 流程")
+        # 5. 选择检索策略
+        strategy = self.strategy_selector.select_strategy(query)
+
+        # 6. 检索相关文档
+        context_docs = self.retrieve_and_merge(
+            query, source_filter=source_filter, strategy=strategy
+        )  # 传递 strategy
+
+        #  7. 准备上下文 -> 每个检索到的 chunk 加 [引用n] 编号标记,
+        #     同时记录编号与 chunk 来源信息(parent_id/source), 供答案末尾输出引用索引.
+        citation_lines = []  # 引用索引行: "[n] 科室 | chunk: parent_id"
+        if context_docs:
