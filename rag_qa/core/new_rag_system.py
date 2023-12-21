@@ -284,3 +284,23 @@ class RAGSystem:
         #     同时记录编号与 chunk 来源信息(parent_id/source), 供答案末尾输出引用索引.
         citation_lines = []  # 引用索引行: "[n] 科室 | chunk: parent_id"
         if context_docs:
+            context_parts = []
+            for idx, doc in enumerate(context_docs, start=1):
+                # 上下文段落前加编号标记 -> 提示词要求模型在答案中用 [n] 标注依据.
+                context_parts.append(f"[引用{idx}]\n{doc.page_content}")
+                # 组装引用索引: chunk 的来源科室与父块唯一ID, 便于溯源.
+                meta = doc.metadata or {}
+                source = meta.get("source", "未知科室")
+                parent_id = meta.get("parent_id", "未知chunk")
+                citation_lines.append(f"[{idx}] {source} | chunk: {parent_id}")
+            context = "\n\n".join(context_parts)
+            logger.info(f"构建上下文完成，包含 {len(context_docs)} 个文档块")
+            # logger.debug(f"上下文内容:\n{context[:500]}...") # Debug 日志可以打印部分上下文
+        else:
+            context = ""
+            logger.info("未检索到相关文档，上下文为空")
+
+        #  8. 构造 Prompt，调用大语言模型生成答案
+        # 构造提示
+        prompt_input = self.rag_prompt.format(
+            context=context,
