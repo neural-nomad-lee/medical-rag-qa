@@ -304,3 +304,24 @@ class RAGSystem:
         # 构造提示
         prompt_input = self.rag_prompt.format(
             context=context,
+            history=history_context,
+            question=query,
+            phone=conf.CUSTOMER_SERVICE_PHONE
+        )
+        # logger.debug(f"最终生成的 Prompt:\n{prompt_input}") # Debug 日志
+
+        # 9. 调用大模型生成流式答案 -> 逐段 yield, 与 new_main.py 的消费方式保持一致.
+        try:
+            for token in self.llm(prompt_input):
+                yield token
+            # 9.1 (新功能)答案末尾追加引用来源索引 -> 标明答案出自哪些检索 chunk.
+            #     仅在 RAG 命中上下文时输出; 通用知识直连 LLM 链路无检索, 不输出.
+            if citation_lines:
+                yield "\n\n---\n📚 引用来源(chunk索引):\n" + "\n".join(citation_lines)
+        except Exception as e:
+            logger.error(f"调用 LLM 生成最终答案失败: {e}")
+            yield f"抱歉，处理您的专业咨询问题时出错。请联系人工客服：{conf.CUSTOMER_SERVICE_PHONE}"
+
+        # 记录查询处理完成的日志
+        processing_time = time.time() - start_time
+        logger.info(f"查询处理完成 (耗时: {processing_time:.2f}s, 查询: '{query}')")
