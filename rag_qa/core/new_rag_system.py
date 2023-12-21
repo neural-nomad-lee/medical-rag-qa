@@ -325,3 +325,23 @@ class RAGSystem:
         # 记录查询处理完成的日志
         processing_time = time.time() - start_time
         logger.info(f"查询处理完成 (耗时: {processing_time:.2f}s, 查询: '{query}')")
+
+
+
+# todo 4.测试代码.
+if __name__ == '__main__':
+    # 1. 实例化向量数据库.
+    vector_store = VectorStore()
+    # 2. 定义大语言模型调用函数.
+    llm = StrategySelector().call_dashscope
+
+    # 3. 创建RAGSystem核心类的实例 -> 传入: 向量数据库实例, 大语言模型调用函数.
+    rag_system = RAGSystem(vector_store, llm)
+
+    # 4. 测试生成答案: 查询'高血压的日常注意事项', 过滤条件'心血管内科' -> 只检索心血管内科相关文档.
+    # answer = rag_system.generate_answer('高血压的日常注意事项有哪些', source_filter='心血管内科')
+    # answer = rag_system.generate_answer('高血压的日常注意事项有哪些', source_filter='呼吸内科')
+    for token in rag_system.generate_answer('计算圆周率近似值的方法有哪些？', source_filter='心血管内科'):
+        # 5. 打印模型生成的答案 -> 实际部署时可改为: 返回给前端或者存储.
+        print(token, end='')
+
