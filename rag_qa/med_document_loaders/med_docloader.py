@@ -38,3 +38,23 @@ class OCRDOCLoader(BaseLoader):
         line = self.doc2text(self.filepath)
         yield Document(page_content=line, metadata={"source": self.filepath})
 
+    def doc2text(self, filepath):
+
+        # 创建OCR识别对象
+        ocr = get_ocr()
+        # print(f'ocr--》{ocr}')  # 输出OCR对象信息
+
+        # 读取Word文档
+        doc = Docu1(filepath)
+        # print(f'doc-->{doc}')  # 输出读取到的文档信息
+        # 定义一个空字符串用于存储最终的文本内容
+        resp = ""
+        # 定义一个迭代器，用于遍历文档中的块（段落、表格等）
+        def iter_block_items(parent):
+            # 判断parent对象类型，如果是Document类型，则获取其元素
+            if isinstance(parent, Docu2):
+                parent_elm = parent.element.body
+            # 如果是表格单元格类型，获取单元格的XML元素
+            elif isinstance(parent, _Cell):
+                parent_elm = parent._tc
+            else:
