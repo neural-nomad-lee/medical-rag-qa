@@ -18,3 +18,23 @@ from langchain_core.document_loaders import BaseLoader
 
 class OCRDOCLoader(BaseLoader):
     """An example document loader that reads a file line by line."""
+
+    def __init__(self, filepath: str) -> None:
+        """Initialize the loader with a file path.
+
+        Args:
+            filepath_path: The path to the filepath to load.
+        """
+        self.filepath = filepath
+
+    def lazy_load(self) -> Iterator[Document]:
+        # <-- Does not take any arguments
+        """A lazy loader that reads a file line by line.
+
+        When you're implementing lazy load methods, you should use a generator
+        to yield documents one by one.
+        """
+
+        line = self.doc2text(self.filepath)
+        yield Document(page_content=line, metadata={"source": self.filepath})
+
