@@ -78,3 +78,23 @@ class OCRDOCLoader(BaseLoader):
         # 遍历文档中的所有块（段落和表格）
         for i, block in enumerate(iter_block_items(doc)):
             # 更新进度条描述
+            b_unit.set_description("OCRDOCLoader  block index: {}".format(i))
+            b_unit.refresh()  # 刷新进度条
+
+            # 如果块是段落类型
+            if isinstance(block, Paragraph):
+                resp += block.text.strip() + "\n"  # 将段落文本加入到返回字符串中
+                # 获取段落中的所有图片
+                images = block._element.xpath('.//pic:pic')
+                for image in images:
+                    # 遍历图片，获取图片ID
+                    for img_id in image.xpath('.//a:blip/@r:embed'):
+                        part = doc.part.related_parts[img_id]  # 根据图片ID获取图片对象
+                        if isinstance(part, ImagePart):  # 如果该部分是图片
+                            # BytesIO 是 Python 内置的 io 模块中的一个类，用于在内存中读写二进制数据
+                            # part._blob 通常表示从某个文档（如 DOCX 文件）中提取的二进制内容。
+                            image = Image.open(BytesIO(part._blob))  # 打开图片
+                            result, _ = ocr(np.array(image))  # 使用OCR识别图片中的文字
+                            if result:  # 如果识别结果不为空
+                                ocr_result = [line[1] for line in result]  # 提取识别出的文字
+                                resp += "\n".join(ocr_result)  # 将识别结果加入返回文本中
