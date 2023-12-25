@@ -58,3 +58,23 @@ class OCRDOCLoader(BaseLoader):
             elif isinstance(parent, _Cell):
                 parent_elm = parent._tc
             else:
+                raise ValueError("OCRDOCLoader parse fail")  # 如果都不是，则抛出错误
+            # print(f'parent_elm--》{parent_elm}')
+            # print('*'*80)
+            # 遍历parent_elm中的所有子元素
+            for child in parent_elm.iterchildren():
+                # print(f'child--》{child}')
+                if isinstance(child, CT_P):  # 如果是段落类型
+                    yield Paragraph(child, parent)  # 返回段落
+                elif isinstance(child, CT_Tbl):  # 如果是表格类型
+                    yield Table(child, parent)  # 返回表格
+
+        # print(f'doc.paragraphs-->{doc.paragraphs}')
+        # print(f'doc.tables-->{doc.tables}')
+        # 创建进度条，表示文档处理的进度
+        b_unit = tqdm(total=len(doc.paragraphs) + len(doc.tables),
+                      desc="OCRDOCLoader block index: 0")
+
+        # 遍历文档中的所有块（段落和表格）
+        for i, block in enumerate(iter_block_items(doc)):
+            # 更新进度条描述
