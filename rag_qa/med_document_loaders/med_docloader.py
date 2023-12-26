@@ -98,3 +98,23 @@ class OCRDOCLoader(BaseLoader):
                             if result:  # 如果识别结果不为空
                                 ocr_result = [line[1] for line in result]  # 提取识别出的文字
                                 resp += "\n".join(ocr_result)  # 将识别结果加入返回文本中
+            # 如果块是表格类型
+            elif isinstance(block, Table):
+                # 遍历表格中的所有行和单元格
+                for row in block.rows:
+                    for cell in row.cells:
+                        for paragraph in cell.paragraphs:
+                            resp += paragraph.text.strip() + "\n"  # 将单元格内的段落文本加入返回文本中
+
+            # 更新进度条
+            b_unit.update(1)
+        # 返回提取的文本内容
+        return resp
+
+
+
+if __name__ == '__main__':
+    from base.config import Config      # 测试用: 引入项目配置获取数据目录
+    docx_loader = OCRDOCLoader(filepath=f'{Config().DATA_DIR}/心血管内科_data/心血管内科常见病科普.docx')
+    doc = docx_loader.load()
+    print(doc)
