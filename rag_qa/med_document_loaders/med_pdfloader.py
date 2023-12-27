@@ -20,3 +20,25 @@ from langchain_text_splitters import CharacterTextSplitter
 # PDF OCR 控制：只对宽高超过页面一定比例（图片宽/页面宽，图片高/页面高）的图片进行 OCR。
 # 这样可以避免 PDF 中一些小图片的干扰，提高非扫描版 PDF 处理速度
 PDF_OCR_THRESHOLD = (0.6, 0.6)
+
+
+class OCRPDFLoader(BaseLoader):
+    """An example document loader that reads a file line by line."""
+
+    def __init__(self, file_path: str) -> None:
+        """Initialize the loader with a file path.
+
+        Args:
+            file_path: The path to the file to load.
+        """
+        self.file_path = file_path
+
+    def lazy_load(self) -> Iterator[Document]:
+        # <-- Does not take any arguments
+        """A lazy loader that reads a file line by line.
+
+        When you're implementing lazy load methods, you should use a generator
+        to yield documents one by one.
+        """
+
+        line = self.pdf2text()
