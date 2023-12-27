@@ -42,3 +42,25 @@ class OCRPDFLoader(BaseLoader):
         """
 
         line = self.pdf2text()
+        yield Document(page_content=line, metadata={"source": self.file_path})
+
+    def pdf2text(self):
+        ocr = get_ocr()
+        # 打开pdf文件
+        doc = fitz.open(self.file_path)
+        ## 获取页数
+        # print(f'len(doc)-->{len(doc)}')
+        resp = ""
+        b_unit = tqdm(total=doc.page_count, desc="OCRPDFLoader context page index: 0")
+        for i, page in enumerate(doc):
+            b_unit.set_description("OCRPDFLoader context page index: {}".format(i))
+            b_unit.refresh()
+            # 提取文本：默认使用 "text" 模式提取文本。
+            text = page.get_text("text")
+            resp += text + "\n"
+            # print(f'resp-->{resp}')
+            # 获取图片：获得所有显示的图像的元信息列表。
+            # 它适用于所有文档类型，不仅限于 PDF。
+            img_list = page.get_image_info(xrefs=True)
+            # print(f'img_list--》{img_list}')
+            # print(f'img_list--》{len(img_list)}')
