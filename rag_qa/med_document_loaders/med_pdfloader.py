@@ -64,3 +64,24 @@ class OCRPDFLoader(BaseLoader):
             img_list = page.get_image_info(xrefs=True)
             # print(f'img_list--》{img_list}')
             # print(f'img_list--》{len(img_list)}')
+            for img in img_list:
+                # xref一种编号，指向该图像对象在PDF文件中的位置，程序可以通过这个编号快速定位和提取图像数据。
+                if xref := img.get("xref"):
+                    # 图像在页面上的位置和尺寸。
+                    bbox = img["bbox"]
+                    # 检查图片尺寸是否超过设定的阈值
+                    if ((bbox[2] - bbox[0]) / (page.rect.width) < PDF_OCR_THRESHOLD[0]
+                            or (bbox[3] - bbox[1]) / (page.rect.height) < PDF_OCR_THRESHOLD[1]):
+                        continue
+                    pix = fitz.Pixmap(doc, xref)
+                    # print(f'page.rotation-->{page.rotation}')
+                    if int(page.rotation) != 0:  # 如果Page有旋转角度，则旋转图片
+                        img_array = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, -1)
+                        tmp_img = Image.fromarray(img_array)
+                        ori_img = cv2.cvtColor(np.array(tmp_img), cv2.COLOR_RGB2BGR)
+                        rot_img = self.rotate_img(img=ori_img, angle=360 - page.rotation)
+                        img_array = cv2.cvtColor(rot_img, cv2.COLOR_RGB2BGR)
+                    else:
+                        img_array = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, -1)
+
+                    # result：包含了图像中检测到的所有文本框的位置、文本内容和置信度信息。
