@@ -85,3 +85,25 @@ class OCRPDFLoader(BaseLoader):
                         img_array = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, -1)
 
                     # result：包含了图像中检测到的所有文本框的位置、文本内容和置信度信息。
+                    # _：它是一个包含了时间数据的列表，可以用于优化模型运行速度。
+                    result, _ = ocr(img_array)
+                    if result:
+                        ocr_result = [line[1] for line in result]
+                        resp += "\n".join(ocr_result)
+            # 更新进度
+            b_unit.update(1)
+        return resp
+
+    def rotate_img(self, img, angle):
+        '''
+        img   --image
+        angle --rotation angle
+        return--rotated img
+        '''
+
+        h, w = img.shape[:2]
+        rotate_center = (w / 2, h / 2)
+        # 获取旋转矩阵
+        # 参数1为旋转中心点;
+        # 参数2为旋转角度,正值-逆时针旋转;负值-顺时针旋转
+        # 参数3为各向同性的比例因子,1.0原图，2.0变成原来的2倍，0.5变成原来的0.5倍
