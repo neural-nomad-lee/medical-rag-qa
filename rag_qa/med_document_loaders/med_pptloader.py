@@ -40,3 +40,25 @@ class OCRPPTLoader(BaseLoader):
         # 初始化一个空字符串，用于存储提取的文本内容
         resp = ""
 
+        def extract_text(shape):
+            # nonlocal指明resp非全局非局部，而是外部嵌套函数中的变量，
+            # 允许内部函数访问和修改外部函数中定义的变量resp
+            nonlocal resp
+
+            # 检查形状是否有文本框
+            if shape.has_text_frame:
+                # 将文本框中的文本添加到resp中，并去掉前后空格
+                resp += shape.text.strip() + "\n"
+
+            # 检查形状是否为表格
+            if shape.has_table:
+                # 遍历表格的每一行
+                for row in shape.table.rows:
+                    # 遍历每一行中的每个单元格
+                    for cell in row.cells:
+                        # 遍历单元格中的每个段落
+                        for paragraph in cell.text_frame.paragraphs:
+                            # 将单元格中的文本添加到resp中，并去掉前后空格
+                            resp += paragraph.text.strip() + "\n"
+
+            # 检查形状是否为图片（shape_type == 13）
