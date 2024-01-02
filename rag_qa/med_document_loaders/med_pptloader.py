@@ -83,3 +83,24 @@ class OCRPPTLoader(BaseLoader):
         b_unit = tqdm(total=len(prs.slides), desc="OCRPPTLoader slide index: 1")
 
         # 遍历所有幻灯片
+        for slide_number, slide in enumerate(prs.slides, start=1):
+            # 更新进度条描述，显示当前处理的幻灯片索引
+            b_unit.set_description("OCRPPTLoader slide index: {}".format(slide_number))
+            b_unit.refresh()  # 刷新进度条显示
+
+            # 按照从上到下、从左到右的顺序对形状进行排序遍历
+            sorted_shapes = sorted(slide.shapes, key=lambda x: (x.top, x.left))
+
+            for shape in sorted_shapes:
+                extract_text(shape)  # 调用extract_text函数提取当前形状的文本内容
+
+            b_unit.update(1)  # 更新进度条，表示处理了一张幻灯片
+
+        return resp  # 返回提取到的所有文本内容
+
+
+if __name__ == '__main__':
+    from base.config import config
+    img_loader = OCRPPTLoader(filepath=f'{config.DATA_DIR}/心血管内科_data/高血压防治讲座.pptx')
+    doc = img_loader.load()
+    print(doc)
