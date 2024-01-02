@@ -62,3 +62,24 @@ class OCRPPTLoader(BaseLoader):
                             resp += paragraph.text.strip() + "\n"
 
             # 检查形状是否为图片（shape_type == 13）
+            if shape.shape_type == 13:  # 13 表示图片
+                # 使用 BytesIO 打开图片数据并转换为图像对象
+                image = Image.open(BytesIO(shape.image.blob))
+                # 使用 OCR 处理图像并获取结果
+                result, _ = ocr(np.array(image))
+                if result:  # 如果 OCR 有结果
+                    # 提取 OCR 结果中的文本行
+                    ocr_result = [line[1] for line in result]
+                    # 将 OCR 提取的文本添加到resp中，以换行分隔
+                    resp += "\n".join(ocr_result)
+
+            # 检查形状是否为组合形状（shape_type == 6）
+            elif shape.shape_type == 6:  # 6 表示组合
+                # 遍历组合形状中的每个子形状，递归调用extract_text函数
+                for child_shape in shape.shapes:
+                    extract_text(child_shape)
+
+        # 创建一个进度条，用于显示幻灯片处理进度，初始总数为幻灯片数量
+        b_unit = tqdm(total=len(prs.slides), desc="OCRPPTLoader slide index: 1")
+
+        # 遍历所有幻灯片
