@@ -19,3 +19,24 @@ class OCRIMGLoader(BaseLoader):
         # <-- Does not take any arguments
         """A lazy loader that reads a file line by line.
 
+        When you're implementing lazy load methods, you should use a generator
+        to yield documents one by one.
+        """
+
+        line = self.img2text()
+        yield Document(page_content=line, metadata={"source": self.img_path})
+
+    def img2text(self):
+        resp = ""
+        ocr = get_ocr()
+        result, _ = ocr(self.img_path)
+        if result:
+            ocr_result = [line[1] for line in result]
+            resp += "\n".join(ocr_result)
+        return resp
+
+
+if __name__ == '__main__':
+    img_loader = OCRIMGLoader(img_path='/0001.项目目录/others/test/医学检查报告示例.png')
+    doc = img_loader.load()
+    print(doc)
