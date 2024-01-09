@@ -19,3 +19,24 @@ def _split_text_with_regex_from_end(
                 splits += _splits[-1:]
             # splits = [_splits[0]] + splits
         else:
+            splits = re.split(separator, text)
+    else:
+        splits = list(text)
+    return [s for s in splits if s != ""]
+
+
+class ChineseRecursiveTextSplitter(RecursiveCharacterTextSplitter):
+    def __init__(
+            self,
+            separators: Optional[List[str]] = None,
+            keep_separator: bool = True,
+            is_separator_regex: bool = True,
+            **kwargs: Any,
+    ) -> None:
+        """Create a new TextSplitter."""
+        super().__init__(keep_separator=keep_separator, **kwargs)
+        self._separators = separators or [
+            "\n\n",
+            "\n",
+            "。|！|？",
+            "\.\s|\!\s|\?\s",
