@@ -40,3 +40,23 @@ class ChineseRecursiveTextSplitter(RecursiveCharacterTextSplitter):
             "\n",
             "。|！|？",
             "\.\s|\!\s|\?\s",
+            "；|;\s",
+            "，|,\s"
+        ]
+        self._is_separator_regex = is_separator_regex
+
+    def _split_text(self, text: str, separators: List[str]) -> List[str]:
+        """Split incoming text and return chunks."""
+        final_chunks = []
+        # Get appropriate separator to use
+        separator = separators[-1]
+        new_separators = []
+        for i, _s in enumerate(separators):
+            _separator = _s if self._is_separator_regex else re.escape(_s)
+            if _s == "":
+                separator = _s
+                break
+            if re.search(_separator, text):
+                separator = _s
+                new_separators = separators[i + 1:]
+                break
