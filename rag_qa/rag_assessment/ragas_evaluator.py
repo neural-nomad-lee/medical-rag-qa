@@ -18,3 +18,23 @@ ragas_evaluator.py —— 基于 RAGAS 框架的 RAG 系统端到端评估
     · LLM:       复用系统的 DashScope 兼容端点(qwen-plus, 密钥从 .env 读取)
     · Embeddings: 复用系统已加载的本地 BGE-M3(不额外调API, 零成本)
 
+【数据格式】ragas_eval_data.json: [{"question": ..., "ground_truth": ...}, ...]
+  ground_truth 为人工整理的标准答案, 与 rag_qa/data/ 知识库内容对齐。
+
+【用法】(在项目根目录执行, 需先启动 Milvus 容器并完成知识入库)
+  python rag_qa/rag_assessment/ragas_evaluator.py
+"""
+import json
+import os
+import sys
+
+# 1. 把项目根目录加入 sys.path, 保证从任何目录运行都能导入项目模块.
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, ROOT)
+
+# todo 1.导包
+from langchain_core.embeddings import Embeddings          # LangChain 嵌入模型接口(ragas 需要该接口)
+from langchain_openai import ChatOpenAI                   # OpenAI 兼容协议的聊天模型(对接 DashScope 端点)
+from datasets import Dataset                              # ragas 要求的数据集格式
+from ragas import evaluate                                # ragas 评估入口
+from ragas.metrics import (
