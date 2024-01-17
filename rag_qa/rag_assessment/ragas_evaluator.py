@@ -58,3 +58,23 @@ class BGEM3LangchainEmbeddings(Embeddings):
 
     def __init__(self, bgem3_function):
         # 传入 VectorStore 内已初始化好的 self.embedding_function 实例.
+        self._bgem3 = bgem3_function
+
+    def embed_documents(self, texts):
+        """批量文本向量化(ragas 计算 answer_relevancy 时用于生成答案的相似问题/相似度)."""
+        result = self._bgem3.encode_documents(list(texts))
+        # 返回稠密向量列表(numpy 2D数组 -> list[list[float]]).
+        return [vec.tolist() for vec in result["dense"]]
+
+    def embed_query(self, text):
+        """单条查询向量化."""
+        result = self._bgem3.encode_queries([text])
+        return result["dense"][0].tolist()
+
+
+# todo 3.加载评估数据集 -> 每条含: question(问题) 与 ground_truth(人工整理的标准答案).
+data_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ragas_eval_data.json")
+with open(data_file, "r", encoding="utf-8") as f:
+    eval_cases = json.load(f)
+logger.info(f"加载评估样本: {len(eval_cases)} 条")
+for item in eval_cases:
