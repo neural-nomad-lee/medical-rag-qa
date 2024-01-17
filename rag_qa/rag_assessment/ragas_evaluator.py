@@ -38,3 +38,23 @@ from langchain_openai import ChatOpenAI                   # OpenAI 兼容协议�
 from datasets import Dataset                              # ragas 要求的数据集格式
 from ragas import evaluate                                # ragas 评估入口
 from ragas.metrics import (
+    faithfulness,          # 忠实度
+    answer_relevancy,      # 答案相关性
+    context_precision,     # 上下文精确率
+    context_recall,        # 上下文召回率
+)
+
+from base.config import Config
+from base.logger import logger
+from rag_qa.core.vector_store import VectorStore                    # 检索器(含 BGE-M3/Reranker)
+from rag_qa.core.new_rag_system import RAGSystem                    # RAG 生成链路
+from rag_qa.core.strategy_selector import StrategySelector          # 复用其 LLM 调用函数
+
+
+# todo 2.定义评估用的嵌入模型适配器 -> 把系统内已加载的 BGE-M3 适配成 ragas 需要的 LangChain Embeddings 接口.
+# 好处: 不重复加载模型, 也不额外调用付费 Embedding API.
+class BGEM3LangchainEmbeddings(Embeddings):
+    """把 BGEM3EmbeddingFunction(FlagEmbedding) 包装成 LangChain Embeddings 接口."""
+
+    def __init__(self, bgem3_function):
+        # 传入 VectorStore 内已初始化好的 self.embedding_function 实例.
