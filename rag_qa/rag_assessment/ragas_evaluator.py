@@ -78,3 +78,23 @@ with open(data_file, "r", encoding="utf-8") as f:
     eval_cases = json.load(f)
 logger.info(f"加载评估样本: {len(eval_cases)} 条")
 for item in eval_cases:
+    # 简单校验: 数据集必须同时具备 question 与 ground_truth 两个字段.
+    assert "question" in item and "ground_truth" in item, f"数据缺字段: {item}"
+
+# todo 4.初始化被评估的 RAG 系统(检索 + 生成), 并跑通完整链路收集 (question, answer, contexts).
+# 4.1 实例化向量库 -> 加载 BGE-M3 与 Reranker(首次运行耗时较长).
+vector_store = VectorStore()
+
+# 4.2 实例化 RAG 系统 -> 与线上问答使用完全相同的检索/生成/分类链路.
+llm_func = StrategySelector().call_dashscope
+rag_system = RAGSystem(vector_store, llm_func)
+
+questions, answers, contexts_list = [], [], []
+for item in eval_cases:
+    query = item["question"]
+    logger.info(f"评估运行: {query}")
+    # 4.3 走完整 RAG 链路生成答案(生成器, 逐段收集).
+    answer = ""
+    for token in rag_system.generate_answer(query):
+        answer += token
+    # 4.4 单独调用检索, 拿到参与生成的 Top-M 父文档作为 contexts(评估检索质量的依据).
