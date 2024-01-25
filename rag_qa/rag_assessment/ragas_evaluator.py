@@ -138,3 +138,23 @@ result = evaluate(
 print("\n===== RAGAS 评估结果 =====")
 print(result)
 
+# 8.1 逐样本明细(便于定位低分case).
+# 注意: ragas 0.2.x 的 to_pandas() 会把 question 列改名为 user_input, 做兼容处理.
+df = result.to_pandas()
+question_col = "user_input" if "user_input" in df.columns else "question"
+metric_cols = [c for c in ("faithfulness", "answer_relevancy", "context_precision", "context_recall")
+               if c in df.columns]
+print("\n===== 逐样本明细 =====")
+print(df[[question_col] + metric_cols].to_string(index=False))
+
+# 8.2 报告落盘: 汇总分数 + 逐样本明细, 供对比不同检索参数/模型版本时回看.
+report_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ragas_report.json")
+report = {
+    # 汇总分: 各指标在全部样本上的均值(ragas 0.2.x 的 EvaluationResult 不暴露 .items()).
+    "summary": {c: round(float(df[c].mean()), 4) for c in metric_cols},
+    "details": df.rename(columns={"user_input": "question"}).to_dict(orient="records"),
+}
+with open(report_file, "w", encoding="utf-8") as f:
+    json.dump(report, f, ensure_ascii=False, indent=2, default=str)
+logger.info(f"评估报告已保存: {report_file}")
+print(f"评估报告已保存: {report_file}")
