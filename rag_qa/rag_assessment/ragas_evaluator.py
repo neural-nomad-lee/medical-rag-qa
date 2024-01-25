@@ -118,3 +118,23 @@ print(dataset)
 # todo 6.配置评估模型 -> LLM 用系统同款端点(qwen-plus), Embeddings 复用本地 BGE-M3.
 conf = Config()
 eval_llm = ChatOpenAI(
+    model=conf.config.get("llm", "model", fallback="qwen-plus"),
+    openai_api_key=conf.DASHSCOPE_API_KEY,
+    openai_api_base=conf.DASHSCOPE_BASE_URL,
+    temperature=0,          # 评估任务要求稳定输出, 温度设为0.
+)
+eval_embeddings = BGEM3LangchainEmbeddings(vector_store.embedding_function)
+
+# todo 7.执行评估 -> 四项指标一次算完(每条样本会触发若干次评估LLM调用, 需要几分钟).
+logger.info("开始 RAGAS 评估(每条样本含多次评估调用, 请耐心等待)...")
+result = evaluate(
+    dataset=dataset,
+    metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
+    llm=eval_llm,
+    embeddings=eval_embeddings,
+)
+
+# todo 8.输出与持久化评估报告.
+print("\n===== RAGAS 评估结果 =====")
+print(result)
+
