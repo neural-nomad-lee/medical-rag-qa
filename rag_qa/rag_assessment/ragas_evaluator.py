@@ -98,3 +98,23 @@ for item in eval_cases:
     for token in rag_system.generate_answer(query):
         answer += token
     # 4.4 单独调用检索, 拿到参与生成的 Top-M 父文档作为 contexts(评估检索质量的依据).
+    docs = vector_store.hybrid_search_with_rerank(query, source_filter=None)
+    contexts = [doc.page_content for doc in docs]
+
+    questions.append(query)
+    answers.append(answer)
+    contexts_list.append(contexts)
+    logger.info(f"完成: 检索到 {len(contexts)} 个上下文块, 答案长度 {len(answer)} 字")
+
+# todo 5.组装 RAGAS 数据集 -> 字段名固定: question / answer / contexts / ground_truth.
+dataset = Dataset.from_dict({
+    "question": questions,
+    "answer": answers,
+    "contexts": contexts_list,
+    "ground_truth": [item["ground_truth"] for item in eval_cases],
+})
+print(dataset)
+
+# todo 6.配置评估模型 -> LLM 用系统同款端点(qwen-plus), Embeddings 复用本地 BGE-M3.
+conf = Config()
+eval_llm = ChatOpenAI(
