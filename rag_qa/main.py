@@ -41,3 +41,24 @@ def main(query_mode=True, directory_path="data"):
             return f"错误: LLM客户端不可用"
         try:
             completion = client.chat.completions.create(
+                model=conf.LLM_MODEL,
+                messages=[
+                    {"role": "system", "content": "你是一个有用的助手."},
+                    {"role": "user", "content": prompt},
+                ]
+                # 可以添加 temperature 等参数
+            )
+            if completion.choices and completion.choices[0].message:
+                 return completion.choices[0].message.content
+            else:
+                 logger.error("LLM API 调用返回无效响应或空消息")
+                 return "错误: LLM返回无效响应"
+        except Exception as e:
+            logger.error(f"LLM API (call_dashscope) 调用失败: {e}")
+            return f"错误: 调用LLM失败 - {e}"
+
+
+    # 3. 初始化 VectorStore向量数据库 -> 连接Milvus服务, 用于存储和检索向量文档.
+    try:
+        vector_store = VectorStore(
+            collection_name=conf.MILVUS_COLLECTION_NAME,
