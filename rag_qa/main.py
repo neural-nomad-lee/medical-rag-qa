@@ -84,3 +84,24 @@ def main(query_mode=True, directory_path="data"):
                 try:
                     chunks = process_documents(
                         dir_path,
+                        conf.PARENT_CHUNK_SIZE,
+                        conf.CHILD_CHUNK_SIZE,
+                        conf.CHUNK_OVERLAP,
+                    )
+                    if chunks:
+                        vector_store.add_documents(chunks)
+                        total_chunks_added += len(chunks)
+                        logger.info(f"成功处理目录 {dir_path}，添加了 {len(chunks)} 个文档块")
+                    else:
+                        logger.info(f"目录 {dir_path} 未发现有效文档或处理结果为空")
+                except Exception as e:
+                    logger.error(f"处理目录 {dir_path} 时出错: {e}")
+            else:
+                logger.warning(f"目录 {dir_path} 不存在，跳过处理")
+        logger.info(f"数据处理完成，共添加了 {total_chunks_added} 个文档块到向量存储")
+    else:
+        # --- 交互式查询模式 ---
+        if not client: # 再次检查 LLM 客户端是否必须且可用
+            print("错误：查询模式需要语言模型客户端，但初始化失败。")
+            return
+
