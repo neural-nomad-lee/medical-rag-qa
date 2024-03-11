@@ -62,3 +62,25 @@ def main(query_mode=True, directory_path="data"):
     try:
         vector_store = VectorStore(
             collection_name=conf.MILVUS_COLLECTION_NAME,
+            host=conf.MILVUS_HOST,
+            port=conf.MILVUS_PORT,
+            database=conf.MILVUS_DATABASE_NAME,
+        )
+    except Exception as e:
+        logger.error(f"初始化 VectorStore 失败 (请检查 Milvus 连接配置): {e}")
+        print("错误：无法连接到向量数据库，程序无法继续。")
+        return
+
+
+    # 4. 根据模式执行不同操作 -> 数据处理模式: 解析文档并添加到向量数据库.
+    if not query_mode:
+        # --- 数据处理模式 ---
+        logger.info("进入数据处理模式...")
+        total_chunks_added = 0
+        for source_dir in conf.DEPARTMENTS:
+            dir_path = os.path.join(directory_path, f"{source_dir}_data")
+            if os.path.exists(dir_path):
+                logger.info(f"开始处理目录: {dir_path}")
+                try:
+                    chunks = process_documents(
+                        dir_path,
