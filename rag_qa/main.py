@@ -126,3 +126,25 @@ def main(query_mode=True, directory_path="data"):
                 break
 
             source_filter_input = input(f"请输入科室类别 ({'/'.join(valid_departments)}) (直接回车默认不过滤)：").strip()
+            source_filter = None # 默认不过滤
+            if source_filter_input:
+                if source_filter_input in valid_departments:
+                    source_filter = source_filter_input
+                    logger.info(f"用户选择了科室过滤: {source_filter}")
+                else:
+                    logger.warning(
+                        f"无效的科室类别 '{source_filter_input}'，将不过滤"
+                    )
+                    print(f"提示：输入的科室 '{source_filter_input}' 无效，将不过滤。")
+
+
+            try:
+                print("正在生成答案，请稍候...")
+                print("-" * 30)
+                print(f"问题: {query}")
+                print("回答: ", end="")
+                # generate_answer 为生成器, 逐段打印实现流式输出.
+                for token in rag_system.generate_answer(query, source_filter=source_filter):
+                    print(token, end="", flush=True)
+                print()
+                print("-" * 30)
