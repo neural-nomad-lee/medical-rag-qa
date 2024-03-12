@@ -105,3 +105,24 @@ def main(query_mode=True, directory_path="data"):
             print("错误：查询模式需要语言模型客户端，但初始化失败。")
             return
 
+        logger.info("进入交互式查询模式...")
+        try:
+            rag_system = RAGSystem(vector_store, call_dashscope)
+        except Exception as e:
+             logger.error(f"初始化 RAGSystem 失败: {e}")
+             print("错误：无法初始化 RAG 系统，无法进入查询模式。")
+             return
+
+        valid_departments = conf.DEPARTMENTS
+        print("\n欢迎使用 MedRAG 交互式查询系统！")
+        print(f"支持的科室类别：{valid_departments}")
+        print("输入您的问题，或输入 'exit' 退出。")
+
+        while True:
+            query = input("\n请输入您的问题：")
+            if query.lower() == "exit":
+                logger.info("用户退出查询模式")
+                print("再见！")
+                break
+
+            source_filter_input = input(f"请输入科室类别 ({'/'.join(valid_departments)}) (直接回车默认不过滤)：").strip()
