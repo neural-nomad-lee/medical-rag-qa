@@ -38,3 +38,23 @@ from new_main import IntegratedQASystem
 # todo 1. FastAPI应用实例初始化 和 全局中间件配置.
 # 【启动容错】问答核心系统改为"惰性实例化": 首次请求时才连接 MySQL/Redis/Milvus 并加载模型.
 # 原实现(模块导入时即实例化)导致任一外部依赖未就绪, 服务直接启动失败且无任何接口可用.
+qa_system: Optional[IntegratedQASystem] = None
+
+
+def get_qa_system() -> IntegratedQASystem:
+    """获取全局问答系统单例, 首次调用时才初始化(连接数据库/加载模型等重操作)."""
+    global qa_system
+    if qa_system is None:
+        qa_system = IntegratedQASystem()
+    return qa_system
+
+
+async def _expired_knowledge_cleanup_loop(interval_hours: int = 24):
+    """
+    后台任务: 定期清理MySQL中已到期的沉淀知识(半年到期自动删除).
+    说明: FAQ种子数据 expire_at 为 NULL, 不受影响; 清理失败不影响服务运行.
+    """
+    while True:
+        try:
+            # 惰性初始化: 若外部依赖未就绪, 捕获异常后等待下个周期重试, 不阻断服务.
+            system = get_qa_system()
