@@ -18,3 +18,23 @@ import os
 from pydantic import BaseModel
 # 导入异步事件循环模块
 import asyncio
+# 导入 JSON 处理模块
+import json
+# 导入 UUID 模块，生成唯一会话 ID
+import uuid
+# 导入类型注解模块
+from typing import Optional, List, Dict, Any
+# 导入时间模块，记录处理时间
+import time
+# 导入正则表达式模块，用于匹配日常问候
+import re
+# 导入异步上下文管理器, 用于 FastAPI lifespan 生命周期管理
+from contextlib import asynccontextmanager
+# 导入优化后的问答系统
+from new_main import IntegratedQASystem
+
+
+
+# todo 1. FastAPI应用实例初始化 和 全局中间件配置.
+# 【启动容错】问答核心系统改为"惰性实例化": 首次请求时才连接 MySQL/Redis/Milvus 并加载模型.
+# 原实现(模块导入时即实例化)导致任一外部依赖未就绪, 服务直接启动失败且无任何接口可用.
