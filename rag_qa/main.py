@@ -148,3 +148,24 @@ def main(query_mode=True, directory_path="data"):
                     print(token, end="", flush=True)
                 print()
                 print("-" * 30)
+            except Exception as e:
+                logger.error(f"处理查询 '{query}' 时失败: {str(e)}")
+                print(f"抱歉，处理您的问题时遇到了错误，请稍后重试或联系管理员。\n")
+
+
+# todo 2. 程序的主入口: 解析命令参数, 决定运行模式 -> 处理处理 / 查询模式
+if __name__ == "__main__":
+    # 解释: 默认进入查询模式, 若要执行数据处理，可以修改调用方式，例如： main(query_mode=False) 或者通过命令行参数控制
+
+    # 导入argparse模块 -> 命令行参数解析库.
+    import argparse
+    # 1. 创建参数解析器, 为解析器设置'描述信息', 当用户在终端执行.
+    parser = argparse.ArgumentParser(description="MedRAG System Main Entry Point")
+    # 2. 添加数据处理模式参数.    --data-processing -> 意思是: 进入数据处理模式.
+    parser.add_argument('--data-processing', action='store_true', help='Run in data processing mode instead of query mode.')
+    # 3. 添加数据目录参数. --data-dir -> 含义: 指定数据目录.
+    parser.add_argument('--data-dir', type=str, default='./data', help='Path to the data directory.')
+    # 4. 解析命令行参数.
+    args = parser.parse_args()
+    # 5. 根据参数调用main函数 -> query_mode为False表示数据处理模式, 否则为查询模式.
+    main(query_mode=(not args.data_processing), directory_path=args.data_dir)
