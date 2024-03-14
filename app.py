@@ -58,3 +58,23 @@ async def _expired_knowledge_cleanup_loop(interval_hours: int = 24):
         try:
             # 惰性初始化: 若外部依赖未就绪, 捕获异常后等待下个周期重试, 不阻断服务.
             system = get_qa_system()
+            system.cleanup_expired_knowledge()
+        except Exception as e:
+            print(f"[到期知识清理] 任务异常(将在下个周期重试): {e}")
+        await asyncio.sleep(interval_hours * 3600)
+
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    """FastAPI 生命周期: 启动时创建清理后台任务, 关闭时取消."""
+    cleanup_task = asyncio.create_task(_expired_knowledge_cleanup_loop())
+    yield
+    cleanup_task.cancel()
+
+
+# 1. 创建FastAPI应用实例, 设置接口文档标题, 接口整体业务描述, 自动生成Swagger在线文档.
+app = FastAPI(title="MedRAG 医疗智慧问答系统API", description="集成MySQL精准问答和RAG检索的医疗智能问答系统",
+              lifespan=lifespan)
+
+# 2. 全局注入CORS跨域中间件, 配置前后端跨域访问规则.
+app.add_middleware(
