@@ -78,3 +78,22 @@ app = FastAPI(title="MedRAG 医疗智慧问答系统API", description="集成MyS
 
 # 2. 全局注入CORS跨域中间件, 配置前后端跨域访问规则.
 app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],        # 允许所有前端域名来源访问, 生产环境需配置具体前端域名. 避免安全风险.
+    allow_credentials=True,     # 允许凭证 -> 允许请求携带Cookie, Token等身份凭证.
+    allow_methods=["*"],        # 允许所有 HTTP 方法 -> 放行全部Http请求: GET/POST/PUT/DELETE....
+    allow_headers=["*"],        # 允许客户端所有自定义请求头, 如: 鉴权Token...
+)
+
+# 3. 静态资源目录: 基于当前文件位置计算绝对路径, 避免依赖启动时的工作目录(cwd).
+STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+os.makedirs(STATIC_DIR, exist_ok=True)
+
+
+# todo 2. 全局固定问候语 正则规则配置.
+GREETING_PATTERNS = [
+    {
+        "pattern": r"^(你好|您好|hi|hello)",  # 匹配问候语
+        "response": "你好！我是 MedRAG 医疗智能助手，专注于健康咨询答疑，很高兴为你服务！"
+    },
+    {
