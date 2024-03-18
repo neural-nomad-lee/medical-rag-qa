@@ -97,3 +97,23 @@ GREETING_PATTERNS = [
         "response": "你好！我是 MedRAG 医疗智能助手，专注于健康咨询答疑，很高兴为你服务！"
     },
     {
+        "pattern": r"^(你是谁|您是谁|你叫什么|你的名字|who are you)",  # 匹配身份询问
+        "response": "我是 MedRAG 医疗智能助手，致力于提供医疗健康相关的咨询解答！"
+    },
+    {
+        "pattern": r"^(在吗|在不在|有人吗)",  # 匹配在线确认
+        "response": "我在！我是 MedRAG 医疗智能助手，随时为你解答健康问题！"
+    },
+    {
+        "pattern": r"^(干嘛呢|你在干嘛|做什么)",  # 匹配状态询问
+        "response": "我正在待命，随时为你解答医疗健康相关的问题！有什么我可以帮你的？"
+    }
+]
+
+
+# todo 3. Pydantic请求/响应数据模型定义
+# todo 3.1 非流式查询接口入参结构体 -> 接收Post请求Json参数.
+# 定义查询请求模型
+class QueryRequest(BaseModel):
+    query: str                           # 查询内容，必填
+    source_filter: Optional[str] = None  # 科室过滤，可选
