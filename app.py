@@ -137,3 +137,23 @@ app.mount('/static', StaticFiles(directory=STATIC_DIR), name='static')
 async def read_root():
     # 返回static目录下的首页html文件 -> 实现域名根路径直接打开前端页面.
     return FileResponse(os.path.join(STATIC_DIR, 'index.html'))
+
+
+# todo 5. Http RestFul业务接口定义.
+# 创建新会话接口
+# TODO 类似于java中的@PostMapping
+@app.post("/api/create_session")
+async def create_session():
+    session_id = str(uuid.uuid4())  # 生成唯一会话 ID
+    return {"session_id": session_id}  # 返回会话 ID
+
+
+# todo  5.2 查询历史消息接口
+# TODO restful api 规范 。比如某厂规范：internal-api.xxxx.com/{业务线: driver/passanger}/{二级:运营、打车}/xxxx
+# TODO 对外的api(openapi) :  /api/v1/med-rag/history/{session_id}
+@app.get("/api/history/{session_id}")
+async def get_history(session_id: str):
+    try:
+        # 获取指定会话的历史记录
+        history = get_qa_system().get_session_history(session_id)
+        # 返回会话 ID 和历史记录
