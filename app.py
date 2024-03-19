@@ -117,3 +117,23 @@ GREETING_PATTERNS = [
 class QueryRequest(BaseModel):
     query: str                           # 查询内容，必填
     source_filter: Optional[str] = None  # 科室过滤，可选
+    session_id: Optional[str] = None     # 会话 ID，可选
+
+# todo 3.2 非流式查询接口标准返回结构体 -> 统一接口出参格式.
+# 定义查询响应模型
+class QueryResponse(BaseModel):
+    answer: str                 # 答案内容 -> 问答最终回复内容.
+    is_streaming: bool          # 是否流式响应 -> 标签当前回复是否需要流式输出, True代表需切换WebSocket接口
+    session_id: str             # 会话 ID -> 用于上下文历史关联
+    processing_time: float      # 处理时间 -> 本次问答完整处理耗时, 单位: 秒.
+
+
+# todo 4. 静态资源挂载与页面路由配置.
+# 1. 将本地static目录挂载至服务器根路径.
+app.mount('/static', StaticFiles(directory=STATIC_DIR), name='static')
+
+# todo根路径 GET接口, 访问首页HTML页面.
+@app.get("/")               # 这个/的意思是: http://ip地址:端口号/
+async def read_root():
+    # 返回static目录下的首页html文件 -> 实现域名根路径直接打开前端页面.
+    return FileResponse(os.path.join(STATIC_DIR, 'index.html'))
