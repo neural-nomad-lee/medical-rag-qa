@@ -157,3 +157,23 @@ async def get_history(session_id: str):
         # 获取指定会话的历史记录
         history = get_qa_system().get_session_history(session_id)
         # 返回会话 ID 和历史记录
+        # TODO 规范操作：{"data": {"session_id": session_id, "history": history} ,"errno":0,"errmsg":报错信息, "log_id":日志编号}
+        return {"session_id": session_id, "history": history}
+    except Exception as e:
+        # 抛出 HTTP 异常，包含错误信息
+        raise HTTPException(status_code=500, detail=f"获取历史记录失败: {str(e)}")
+
+
+# @ todo 5.3 清除历史消息接口 -> 根据会话ID清空历史对话接口.
+@app.delete("/api/history/{session_id}")
+async def clear_history(session_id: str):
+    # 清除指定会话的历史记录
+    success = get_qa_system().clear_session_history(session_id)
+    if success:
+        # 返回成功状态
+        return {"status": "success", "message": "历史记录已清除"}
+    else:
+        # 抛出 HTTP 异常
+        raise HTTPException(status_code=500, detail="清除历史记录失败")
+
+
