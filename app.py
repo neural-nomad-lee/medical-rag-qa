@@ -197,3 +197,23 @@ async def query(request: QueryRequest):
     # 检查是否为日常问候
     greeting_response = check_greeting(request.query)
     if greeting_response:
+        # 返回问候回复
+        return {
+            "answer": greeting_response,
+            "is_streaming": False,
+            "session_id": session_id,
+            "processing_time": time.time() - start_time
+        }
+    # 执行 BM25 搜索
+    answer, need_rag = get_qa_system().bm25_search.search(request.query, threshold=0.85)
+    if need_rag:
+        # 需要 RAG，提示使用 WebSocket
+        return {
+            "answer": "请使用WebSocket接口获取流式响应",
+            "is_streaming": True,
+            "session_id": session_id,
+            "processing_time": time.time() - start_time
+        }
+    # 返回 MySQL 答案
+    return {
+        "answer": answer,
