@@ -237,3 +237,23 @@ async def websocket_endpoint(websocket: WebSocket):
             # 获取查询参数
             query = request_data.get("query")
             source_filter = request_data.get("source_filter")
+            session_id = request_data.get("session_id", str(uuid.uuid4()))
+            start_time = time.time()  # 记录开始时间
+            # 发送开始标志
+            if websocket.client_state == websocket.client_state.CONNECTED:
+                await websocket.send_json({
+                    "type": "start",
+                    "session_id": session_id
+                })
+            # 检查是否为日常问候
+            greeting_response = check_greeting(query)
+            if greeting_response:
+                if websocket.client_state == websocket.client_state.CONNECTED:
+                    # 发送问候回复
+                    await websocket.send_json({
+                        "type": "token",
+                        "token": greeting_response,
+                        "session_id": session_id
+                    })
+                    # 发送结束标志
+                    await websocket.send_json({
