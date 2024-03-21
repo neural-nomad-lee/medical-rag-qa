@@ -217,3 +217,23 @@ async def query(request: QueryRequest):
     # 返回 MySQL 答案
     return {
         "answer": answer,
+        "is_streaming": False,
+        "session_id": session_id,
+        "processing_time": time.time() - start_time
+    }
+
+
+# 流式查询 WebSocket 接口
+# WebSocket长连接流式问答接口, 逐Token分段推送答案, 实现: 打字机流失效果.
+# todo 8. 这里用的还是fastapi框架，但是这里接受的对象不会转成我们定义的结构体。 使用的是WebSocket
+@app.websocket("/api/stream")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()  # 接受 WebSocket 连接
+    try:
+        while True:
+            # 接收客户端消息
+            data = await websocket.receive_text()
+            request_data = json.loads(data)  # 解析 JSON 数据
+            # 获取查询参数
+            query = request_data.get("query")
+            source_filter = request_data.get("source_filter")
