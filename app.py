@@ -177,3 +177,23 @@ async def clear_history(session_id: str):
         raise HTTPException(status_code=500, detail="清除历史记录失败")
 
 
+# todo 6. 公共工具函数 -> 检测用户输入是否为问候短句, 匹配则返回预设回顾 -: 检查是否为日常问候用语并返回模板回复
+def check_greeting(query: str) -> Optional[str]:
+    query_text = query.strip()  # 去除首尾空格
+    for pattern_info in GREETING_PATTERNS:
+        # 使用正则匹配，忽略大小写, 兼容中英文大小写混用场景.
+        if re.match(pattern_info["pattern"], query_text, re.IGNORECASE):
+            return pattern_info["response"]  # 返回匹配的回复
+    return None  # 无匹配返回 None
+
+
+# todo 7. 同步非主流式问答POST接口, 一次性返回完整回复答案, 不支持分段流式输出.
+# 非流式查询接口
+@app.post("/api/query")
+async def query(request: QueryRequest):
+    start_time = time.time()  # 记录开始时间
+    # 使用请求中的 session_id 或生成新 ID
+    session_id = request.session_id or str(uuid.uuid4())
+    # 检查是否为日常问候
+    greeting_response = check_greeting(request.query)
+    if greeting_response:
