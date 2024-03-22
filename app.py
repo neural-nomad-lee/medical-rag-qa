@@ -257,3 +257,22 @@ async def websocket_endpoint(websocket: WebSocket):
                     })
                     # 发送结束标志
                     await websocket.send_json({
+                        "type": "end",
+                        "session_id": session_id,
+                        "is_complete": True,
+                        "processing_time": time.time() - start_time
+                    })
+                break
+            # 调用问答系统，流式处理查询
+            collected_answer = ""
+            for token, is_complete in get_qa_system().query(query, source_filter=source_filter, session_id=session_id):
+                collected_answer += token  # 累积答案
+                if is_complete and not collected_answer:
+                    if websocket.client_state == websocket.client_state.CONNECTED:
+                        # 发送结束标志
+                        await websocket.send_json({
+                            "type": "end",
+                            "session_id": session_id,
+                            "is_complete": True,
+                            "processing_time": time.time() - start_time
+                        })
