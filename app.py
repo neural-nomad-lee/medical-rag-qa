@@ -276,3 +276,23 @@ async def websocket_endpoint(websocket: WebSocket):
                             "is_complete": True,
                             "processing_time": time.time() - start_time
                         })
+                    break
+                if token and websocket.client_state == websocket.client_state.CONNECTED:
+                    # 发送 token 数据
+                    await websocket.send_json({
+                        "type": "token",
+                        "token": token,
+                        "session_id": session_id
+                    })
+                if is_complete:
+                    if websocket.client_state == websocket.client_state.CONNECTED:
+                        # 发送结束标志
+                        await websocket.send_json({
+                            "type": "end",
+                            "session_id": session_id,
+                            "is_complete": True,
+                            "processing_time": time.time() - start_time
+                        })
+                    break
+                await asyncio.sleep(0.01)  # 控制流式输出的速度
+    except WebSocketDisconnect as e:
