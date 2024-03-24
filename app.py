@@ -296,3 +296,23 @@ async def websocket_endpoint(websocket: WebSocket):
                     break
                 await asyncio.sleep(0.01)  # 控制流式输出的速度
     except WebSocketDisconnect as e:
+        # 记录 WebSocket 断开信息
+        print(f"WebSocket disconnected: code={e.code}, reason={e.reason}")
+    except Exception as e:
+        # 客户端中途断开(刷新页面/关闭标签页)属正常现象, 按断开处理而非错误.
+        if websocket.client_state != websocket.client_state.CONNECTED:
+            print(f"WebSocket closed by client: {e}")
+            return
+        # 记录真实的错误信息
+        print(f"WebSocket error: {str(e)}")
+        if websocket.client_state == websocket.client_state.CONNECTED:
+            # 发送错误消息
+            await websocket.send_json({
+                "type": "error",
+                "error": str(e)
+            })
+    finally:
+        try:
+            if websocket.client_state == websocket.client_state.CONNECTED:
+                # 关闭 WebSocket 连接
+                await websocket.close()
