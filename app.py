@@ -316,3 +316,23 @@ async def websocket_endpoint(websocket: WebSocket):
             if websocket.client_state == websocket.client_state.CONNECTED:
                 # 关闭 WebSocket 连接
                 await websocket.close()
+        except Exception as e:
+            # 记录关闭连接时的错误
+            print(f"Error closing WebSocket: {str(e)}")
+
+# todo 9. 健康检查接口 -> 运维监控接口(了解即可)
+# TODO k8s: 管理和部署容器， 基于docker(其他虚拟化框架)一个管理工具
+# TODO 探针机制(去调用接口知道当前的服务它的状态)： 就绪探针(探测是不是启动)、 存活探针(是不是正常服务)
+@app.get("/health")
+async def health_check():
+    # 返回健康状态标记, k8s调用该接口返回200则判断服务正常运行.
+    return {"status": "healthy"}  # 返回健康状态
+
+# 获取有效科室类别接口
+@app.get("/api/departments")
+async def get_departments():
+    return {"departments": get_qa_system().config.DEPARTMENTS}  # 返回科室类别列表
+
+
+# 兼容旧前端的 /api/sources 接口 -> 返回同一份科室列表(字段名保留 sources).
+@app.get("/api/sources")
