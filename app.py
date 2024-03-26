@@ -336,3 +336,23 @@ async def get_departments():
 
 # 兼容旧前端的 /api/sources 接口 -> 返回同一份科室列表(字段名保留 sources).
 @app.get("/api/sources")
+async def get_sources():
+    return {"sources": get_qa_system().config.DEPARTMENTS}  # 返回科室类别列表
+
+
+# 主程序入口
+if __name__ == "__main__":
+    # springboot = springcore + spirngmvc + tomcat
+    # fastapi = springmvc (url -> 方法调用)
+    # uvicorn = tomcat (服务容器，负责处理多线程、高并发等)
+
+    import uvicorn      # uvicorn库 -> 异步web服务容器, 用于启动FastAPI应用.
+    import os
+
+    # 从环境变量获取主机和端口，默认值为 0.0.0.0:8080
+    host = os.getenv('HOST', '0.0.0.0')
+    port = int(os.getenv('PORT', 8080))
+
+    # 运行 FastAPI 应用，监听指定的主机和端口
+    # reload=False 关闭热重载, 生产环境禁用, 避免性能损耗.
+    uvicorn.run("app:app", host=host, port=port, reload=False)
