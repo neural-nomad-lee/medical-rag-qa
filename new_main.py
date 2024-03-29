@@ -19,3 +19,23 @@ from base.config import config
 from base.logger import logger
 # 导入 OpenAI 客户端，用于调用 DashScope API
 from openai import OpenAI
+# 导入时间库，用于记录处理时间
+import time
+import pymysql      # 这个库是Python操作MySQL的库, 用于数据库操作的异常捕获, 增删改查操作等.
+import redis        # 用于捕获 Redis 操作异常(缓存/计数失败不应影响问答主流程).
+import uuid         # 生成唯一会话ID, 标识: 用户会话.
+
+
+# todo 2. 集成问答系统的核心类.
+# 该类的作用: 集成问答系统的核心功能(主类), 把各种工具拼起来干活.
+# 先查MySQL中的现成答案 -> 靠谱就用 -> 不靠谱就用RAG重新生成 -> 啥都没有就说 没找到.
+class IntegratedQASystem:
+    # todo 2.1 初始化方法 -> 创建系统需要的各种工具.
+    def __init__(self):
+        # 1. 初始化日志工具，用于记录系统运行信息 和 配置对象.
+        self.logger = logger
+        self.config = config
+        # 2. 初始化 MySQL 客户端 和 Redis客户端(缓存), BM25 搜索模块
+        self.mysql_client = MySQLClient()
+        self.redis_client = RedisClient()
+        self.bm25_search = BM25Search(self.redis_client, self.mysql_client)
