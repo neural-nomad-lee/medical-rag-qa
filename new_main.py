@@ -60,3 +60,24 @@ class IntegratedQASystem:
     def init_conversation_table(self):
         """
         函数功能: 初始化MySQL中的 Conversations表, 用于存储对话历史.
+        :return:
+        """
+        try:
+            # 1. 执行SQL语句, 创建 conversations 表，包含会话 ID、问题、答案和时间戳
+            self.mysql_client.cursor.execute("""
+                create table if not exists conversations(
+                    id INT AUTO_INCREMENT PRIMARY KEY,          # 主键id
+                    session_id VARCHAR(36) NOT NULL,            # 会话id
+                    question TEXT NOT NULL,                     # 问题
+                    answer TEXT NOT NULL,                       # 答案
+                    timestamp DATETIME NOT NULL,                # 时间戳
+                    INDEX idx_session_id (session_id)           # 创建索引列, 目的: 提高查询的效率.
+                )
+            """)
+            # 提交数据库事务
+            self.mysql_client.connection.commit()
+            # 记录表初始化成功的日志
+            self.logger.info("对话历史表初始化成功")
+        except pymysql.MySQLError as e:
+            # 记录表初始化失败的错误日志
+            self.logger.error(f"初始化对话历史表失败: {e}")
