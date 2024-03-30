@@ -81,3 +81,24 @@ class IntegratedQASystem:
         except pymysql.MySQLError as e:
             # 记录表初始化失败的错误日志
             self.logger.error(f"初始化对话历史表失败: {e}")
+            # 抛出异常，终止初始化
+            raise
+
+    # todo 2.2.1 (新功能) 知识沉淀: RAG检索超过3次的问题, 结构化后存入MySQL知识库.
+    # 设计说明:
+    #   · 用 Redis 计数器(30天滑动窗口)统计同一问题的RAG检索次数.
+    #   · 超过3次说明该问题高频且有真实价值 -> 将"问题-答案"结构化写入 ylkb 表,
+    #     之后相同问题可直接命中 BM25/MySQL 精准问答链路, 不再重复走RAG生成.
+    #   · 写入的答案设置 expire_at = 当前时间 + 180天(半年), 到期由 cleanup_expired_knowledge 自动清理.
+    #   · 同一问题若已有旧答案 -> 先删除再插入(覆盖旧资料, 保证答案为最新).
+    RAG_PERSIST_THRESHOLD = 3          # 沉淀阈值: 检索次数 > 3 次才存入MySQL
+    RAG_PERSIST_WINDOW_SECONDS = 30 * 24 * 3600   # 计数器窗口: 30天
+    KNOWLEDGE_EXPIRE_DAYS = 180        # 沉淀知识的到期天数: 半年
+
+    def persist_rag_answer(self, query: str, answer: str, department=None) -> bool:
+        """
+        函数功能: 将高频RAG问答结构化存入MySQL知识库(ylkb表), 半年后到期自动清理.
+        :param query: 用户问题原文
+        :param answer: RAG生成的完整答案
+        :param department: 科室过滤条件(可为None, 存"通用")
+        :return: True -> 写入成功(或无需写入), False -> 写入失败
