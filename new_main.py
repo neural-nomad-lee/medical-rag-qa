@@ -102,3 +102,23 @@ class IntegratedQASystem:
         :param answer: RAG生成的完整答案
         :param department: 科室过滤条件(可为None, 存"通用")
         :return: True -> 写入成功(或无需写入), False -> 写入失败
+        """
+        # 1. 无有效答案则不沉淀.
+        if not answer or not answer.strip():
+            return True
+        try:
+            # 2. Redis计数: 统计该问题的RAG检索次数(每次RAG成功生成答案+1).
+            #   Redis 属于辅助组件, 计数失败只跳过沉淀, 不能影响已经生成的答案.
+            count_key = f"rag_query_count:{query}"
+            try:
+                count = int(self.redis_client.client.incr(count_key))
+                self.redis_client.client.expire(count_key, self.RAG_PERSIST_WINDOW_SECONDS)
+            except redis.RedisError as e:
+                self.logger.warning(f"RAG知识沉淀计数失败(跳过本次沉淀): {e}")
+                return True
+            # 3. 未超过阈值 -> 只计数, 不写入.
+            if count <= self.RAG_PERSIST_THRESHOLD:
+                self.logger.info(f"RAG知识沉淀计数: '{query}' 已检索 {count} 次 (阈值 {self.RAG_PERSIST_THRESHOLD})")
+                return True
+            # 4. 超过阈值 -> 结构化写入MySQL: 同问题旧答案直接覆盖.
+            dept = department or "通用"
