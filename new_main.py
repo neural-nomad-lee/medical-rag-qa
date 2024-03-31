@@ -143,3 +143,24 @@ class IntegratedQASystem:
                 pass
             return False
 
+    # todo 2.2.2 (新功能) 到期知识清理: 删除MySQL中已到期(半年)的沉淀知识, 并失效BM25缓存.
+    def cleanup_expired_knowledge(self) -> int:
+        """
+        函数功能: 删除 ylkb 表中 expire_at 已到期的记录(RAG沉淀知识半年到期), 返回删除条数.
+        说明: FAQ种子数据 expire_at 为 NULL, 永久保留, 不受本清理影响.
+        :return: 删除的记录条数(出错时返回-1)
+        """
+        try:
+            self.mysql_client.cursor.execute(
+                "DELETE FROM ylkb WHERE expire_at IS NOT NULL AND expire_at < NOW()"
+            )
+            deleted = self.mysql_client.cursor.rowcount
+            self.mysql_client.connection.commit()
+            if deleted > 0:
+                self.logger.info(f"已清理 {deleted} 条到期知识")
+                # 有删除才需要刷新BM25缓存(问题列表可能变化).
+                self.bm25_search.refresh()
+            return deleted
+        except pymysql.MySQLError as e:
+            self.logger.error(f"清理到期知识失败: {e}")
+            try:
