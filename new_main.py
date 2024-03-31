@@ -122,3 +122,24 @@ class IntegratedQASystem:
                 return True
             # 4. 超过阈值 -> 结构化写入MySQL: 同问题旧答案直接覆盖.
             dept = department or "通用"
+            self.mysql_client.cursor.execute(
+                "DELETE FROM ylkb WHERE question = %s", (query,)
+            )
+            self.mysql_client.cursor.execute(
+                "INSERT INTO ylkb(department, question, answer, expire_at) "
+                "VALUES(%s, %s, %s, DATE_ADD(NOW(), INTERVAL %s DAY))",
+                (dept, query, answer, self.KNOWLEDGE_EXPIRE_DAYS)
+            )
+            self.mysql_client.connection.commit()
+            self.logger.info(f"RAG知识已沉淀入MySQL: '{query}' (科室: {dept}, {self.KNOWLEDGE_EXPIRE_DAYS}天后到期)")
+            # 5. 刷新BM25缓存, 让沉淀的知识立即可被精准问答链路命中.
+            self.bm25_search.refresh()
+            return True
+        except pymysql.MySQLError as e:
+            self.logger.error(f"RAG知识沉淀失败: {e}")
+            try:
+                self.mysql_client.connection.rollback()
+            except Exception:
+                pass
+            return False
+
