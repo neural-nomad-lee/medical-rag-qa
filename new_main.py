@@ -164,3 +164,24 @@ class IntegratedQASystem:
         except pymysql.MySQLError as e:
             self.logger.error(f"清理到期知识失败: {e}")
             try:
+                self.mysql_client.connection.rollback()
+            except Exception:
+                pass
+            return -1
+
+    # todo 2.3 (优化3) 调用大语言模型的方法: 给RAG系统用的.
+    def call_dashscope(self, prompt):
+        """
+        函数功能: 调用DashScope API生成答案 -> 流式输出
+        :param prompt: 发送给大模型的提示文本(字符串), 包含用户问题及上下文
+        :return: 生成器, 逐段返回大模型生成的答案内容(字符串)
+        """
+        try:
+            # 1. 发送聊天完成请求，启用流式输出, 设置超时时间.
+            completion = self.client.chat.completions.create(
+                model=self.config.LLM_MODEL,  # 使用配置中的语言模型
+                messages=[
+                    {"role": "system", "content": "你是一个有用的助手。"},  # 系统提示
+                    {"role": "user", "content": prompt},  # 用户输入的提示
+                ],
+                timeout=30,  # 设置 30 秒超时
