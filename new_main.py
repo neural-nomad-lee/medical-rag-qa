@@ -185,3 +185,23 @@ class IntegratedQASystem:
                     {"role": "user", "content": prompt},  # 用户输入的提示
                 ],
                 timeout=30,  # 设置 30 秒超时
+                stream=True  # 启用流式输出
+            )
+            # 2. 遍历流式输出的每个 chunk
+            for chunk in completion:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    # 获取当前 chunk 的文本内容
+                    content = chunk.choices[0].delta.content
+                    # 逐 token 返回，供前端实时显示
+                    yield content
+        except Exception as e:
+            # 记录 API 调用失败的错误日志
+            self.logger.error(f"LLM调用失败: {e}")
+            # 返回错误信息
+            return f"错误：LLM调用失败 - {e}"
+
+
+    # todo 2.4 (优化4) 获取最近对话历史的内部方法: 从MySQL中查询指定会话(ID)的最近5轮对话.
+    def _fetch_recent_history(self, session_id):
+        """
+        函数功能: 获取最近5轮对话历史
