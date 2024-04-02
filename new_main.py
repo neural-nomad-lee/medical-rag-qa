@@ -205,3 +205,24 @@ class IntegratedQASystem:
     def _fetch_recent_history(self, session_id):
         """
         函数功能: 获取最近5轮对话历史
+        :param session_id: 会话唯一标识(字符串), 用于定位具体会话.
+        :return: 列表, 包含字典形式的对话记录, 例如: [{'question':问题, 'answer':答案}]
+        """
+        try:
+            # 1. 执行 SQL 查询，获取最近 5 轮对话
+            self.mysql_client.cursor.execute("""
+                 SELECT question, answer
+                 FROM conversations
+                 WHERE session_id = %s
+                 ORDER BY timestamp DESC
+                     LIMIT %s
+                 """, (session_id, 5))
+            # 2. 将查询结果转换为字典列表
+            history = [{"question": row[0], "answer": row[1]} for row in self.mysql_client.cursor.fetchall()]
+            # 3. 反转结果，按时间正序返回
+            return history[::-1]
+        except pymysql.MySQLError as e:
+            # 记录查询失败的错误日志
+            self.logger.error(f"获取对话历史失败: {e}")
+            # 返回空列表
+            return []
