@@ -226,3 +226,24 @@ class IntegratedQASystem:
             self.logger.error(f"获取对话历史失败: {e}")
             # 返回空列表
             return []
+
+
+    # todo 2.5 (优化5) 获取会话历史的方法: 对外提供获取指定会话历史的接口.
+    def get_session_history(self, session_id):
+        """
+        函数功能: 从MySQL获取会话历史.
+        :param session_id: 会话唯一标识(字符串)
+        :return: 列表, 包含最近5轮对话记录 -> 同 _fetch_recent_history()的返回值.
+        """
+        # 调用内部方法获取对话历史.
+        return self._fetch_recent_history(session_id)
+
+
+    # todo 2.6 (优化6) 更新会话历史的方法: 将新对话记录存入MySQL, 并保留最近5轮.
+    def update_session_history(self, session_id: str, question: str, answer: str):
+        """
+        函数功能: 更新会话历史到MySQL，保留最近5轮对话
+        :param session_id: 会话唯一标识(字符串)
+        :param question: 用户的问题(字符串)
+        :param answer: 系统生成的答案(字符串)
+        :return:
