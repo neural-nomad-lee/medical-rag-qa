@@ -267,3 +267,24 @@ class IntegratedQASystem:
                             WHERE session_id = %s
                             ORDER BY timestamp DESC
                                 LIMIT %s) AS sub)
+                 """, (session_id, session_id, 5))
+            # 4. 提交事务
+            self.mysql_client.connection.commit()
+            # 5. 记录更新成功的日志
+            self.logger.info(f"会话 {session_id} 历史更新成功")
+            # 6. 返回更新后的历史
+            return history
+        except pymysql.MySQLError as e:
+            # 7.记录数据库操作失败的错误日志
+            self.logger.error(f"更新会话历史失败: {e}")
+            # 回滚事务
+            self.mysql_client.connection.rollback()
+            # 抛出异常
+            raise
+        except Exception as e:
+            # 8.记录意外错误的日志
+            self.logger.error(f"更新会话历史意外错误: {e}")
+            # 回滚事务
+            self.mysql_client.connection.rollback()
+            # 抛出异常
+            raise
