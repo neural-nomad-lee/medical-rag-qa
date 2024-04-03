@@ -247,3 +247,23 @@ class IntegratedQASystem:
         :param question: 用户的问题(字符串)
         :param answer: 系统生成的答案(字符串)
         :return:
+        """
+        try:
+            # 1. 插入新的对话记录, 将问题, 答案及当前时间存入数据库.
+            self.mysql_client.cursor.execute("""
+                 INSERT INTO conversations (session_id, question, answer, timestamp)
+                 VALUES (%s, %s, %s, NOW())
+                 """, (session_id, question, answer))
+            # 2. 获取更新后的对话历史
+            history = self._fetch_recent_history(session_id)
+            # 3. 删除超出 5 轮的旧记录
+            self.mysql_client.cursor.execute("""
+                 DELETE
+                 FROM conversations
+                 WHERE session_id = %s
+                   AND id NOT IN (SELECT id
+                      FROM (SELECT id
+                            FROM conversations
+                            WHERE session_id = %s
+                            ORDER BY timestamp DESC
+                                LIMIT %s) AS sub)
