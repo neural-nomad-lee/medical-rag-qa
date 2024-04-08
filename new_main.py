@@ -288,3 +288,24 @@ class IntegratedQASystem:
             self.mysql_client.connection.rollback()
             # 抛出异常
             raise
+
+
+    # todo 2.7 (优化7) 清除会话历史: 删除指定会话的所有记录.
+    def clear_session_history(self, session_id: str) -> bool:
+        """
+        函数功能: 清除指定会话历史
+        :param session_id: 会话唯一标识(字符串)
+        :return: True -> 清除成功, False -> 清除失败
+        """
+        try:
+            # 1.删除指定 session_id 的所有对话记录
+            self.mysql_client.cursor.execute("""
+                 DELETE
+                 FROM conversations
+                 WHERE session_id = %s
+                 """, (session_id,)
+            )
+            # 2.提交事务
+            self.mysql_client.connection.commit()
+            # 3.记录清除成功的日志
+            self.logger.info(f"会话 {session_id} 历史已清除")
