@@ -309,3 +309,24 @@ class IntegratedQASystem:
             self.mysql_client.connection.commit()
             # 3.记录清除成功的日志
             self.logger.info(f"会话 {session_id} 历史已清除")
+            # 4.返回 True 表示成功
+            return True
+        except pymysql.MySQLError as e:
+            # 5.记录清除失败的错误日志
+            self.logger.error(f"清除会话历史失败: {e}")
+            # 回滚事务
+            self.mysql_client.connection.rollback()
+            # 返回 False 表示失败
+            return False
+
+
+    # todo 2.8 (优化8) 处理查询的核心方法: 整合检索, 大模型生成和对话历史, 返回流式答案.
+    def query(self, query, source_filter=None, session_id=None):
+        """
+        函数功能: 查询集成系统，支持对话历史和流式输出
+        :param query:
+        :param source_filter:
+        :param session_id:
+        :return:
+        """
+        # 1.记录查询开始时间 和 日志.
