@@ -330,3 +330,23 @@ class IntegratedQASystem:
         :return:
         """
         # 1.记录查询开始时间 和 日志.
+        start_time = time.time()
+        # 记录查询信息到日志
+        self.logger.info(f"处理查询: '{query}' (会话ID: {session_id})")
+
+        # 2.获取对话历史，若无 session_id 则返回空列表, 若有则查询最近5轮历史.
+        history = self.get_session_history(session_id) if session_id else []
+        # 3. 执行 BM25 搜索，获取答案和是否需要 RAG 的标志
+        answer, need_rag = self.bm25_search.search(query, threshold=0.85)
+
+        if answer:
+            # 情况1: 找到可靠答案 -> 即: BM25检索结果满足阈值. 记录答案到日志
+            self.logger.info(f"MySQL答案: {answer}")
+            if session_id:
+                # 更新对话历史
+                self.update_session_history(session_id, query, answer)
+            # 计算处理时间
+            processing_time = time.time() - start_time
+            # 记录处理时间到日志
+            self.logger.info(f"查询处理耗时 {processing_time:.2f}秒")
+            # 一次性返回答案，标记为完整
