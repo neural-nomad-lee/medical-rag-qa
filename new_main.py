@@ -350,3 +350,24 @@ class IntegratedQASystem:
             # 记录处理时间到日志
             self.logger.info(f"查询处理耗时 {processing_time:.2f}秒")
             # 一次性返回答案，标记为完整
+            yield answer, True
+        elif need_rag:
+            # 情况2: 无可靠答案 -> 回退到RAG系统生成.
+            self.logger.info("无可靠MySQL答案，回退到RAG")
+            # 初始化收集完整答案的字符串
+            collected_answer = ""
+            # 从 RAG 系统获取流式输出
+            for token in self.rag_system.generate_answer(query, source_filter=source_filter, history=history):
+                # 累积答案
+                collected_answer += token
+                # 逐 token 返回，标记为部分答案
+                yield token, False
+            if session_id:
+                # 更新对话历史，存储完整答案
+                self.update_session_history(session_id, query, collected_answer)
+            # (新功能)知识沉淀: 高频RAG问题结构化写入MySQL知识库, 半年后到期自动清理.
+            self.persist_rag_answer(query, collected_answer, source_filter)
+            # 计算处理时间
+            processing_time = time.time() - start_time
+            # 记录处理时间到日志
+            self.logger.info(f"查询处理耗时 {processing_time:.2f}秒")
