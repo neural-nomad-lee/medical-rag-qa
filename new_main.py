@@ -392,3 +392,24 @@ def main():
     session_id = str(uuid.uuid4())
     # 3. 打印欢迎信息
     print("\n欢迎使用 MedRAG 医疗智慧问答系统！")
+    # 打印会话 ID
+    print(f"会话ID: {session_id}")
+    # 打印支持的科室类别
+    print(f"支持的科室类别：{qa_system.config.DEPARTMENTS}")
+    # 提示用户输入查询或退出
+    print("输入查询进行问答，输入 'exit' 退出。")
+
+    try:
+        while True:
+            # 4. 获取用户输入的查询
+            query = input("\n输入查询: ").strip()
+            if query.lower() == "exit":
+                # 如果用户输入 exit，记录退出日志
+                logger.info("退出系统")
+                # 打印退出信息
+                print("再见, 感谢您的使用, 期待下次再会！")
+                # 退出循环
+                break
+            # 5. 获取用户输入的科室过滤 -> 允许用户指定科室类别, 无效则忽略.
+            # 5.1 接收用户录入的科室类别
+            source_filter = input(f"请输入科室类别 ({'/'.join(qa_system.config.DEPARTMENTS)}) (直接回车默认不过滤): ").strip()
