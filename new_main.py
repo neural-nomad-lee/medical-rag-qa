@@ -371,3 +371,24 @@ class IntegratedQASystem:
             processing_time = time.time() - start_time
             # 记录处理时间到日志
             self.logger.info(f"查询处理耗时 {processing_time:.2f}秒")
+            # 返回空字符串，标记流结束
+            yield "", True
+        else:
+            # 情况3: 未找到任何答案.
+            self.logger.info("未找到答案")
+            # 计算处理时间
+            processing_time = time.time() - start_time
+            # 记录处理时间到日志
+            self.logger.info(f"查询处理耗时 {processing_time:.2f}秒")
+            # 一次性返回默认答案，标记为完整
+            yield "未找到答案", True
+
+
+# todo 3. 定义main函数: 提供命令行交互界面, 测试 集成问答系统.
+def main():
+    # 1. 定义主函数，提供命令行交互界面 -> 初始化问答系统.
+    qa_system = IntegratedQASystem()  # 初始化问答系统
+    # 2. 生成唯一会话 ID
+    session_id = str(uuid.uuid4())
+    # 3. 打印欢迎信息
+    print("\n欢迎使用 MedRAG 医疗智慧问答系统！")
