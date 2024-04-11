@@ -413,3 +413,23 @@ def main():
             # 5. 获取用户输入的科室过滤 -> 允许用户指定科室类别, 无效则忽略.
             # 5.1 接收用户录入的科室类别
             source_filter = input(f"请输入科室类别 ({'/'.join(qa_system.config.DEPARTMENTS)}) (直接回车默认不过滤): ").strip()
+            # 5.2 判断用户录入的 科室类别 是否有效.
+            if source_filter and source_filter not in qa_system.config.DEPARTMENTS:
+                # 如果科室过滤无效，记录警告日志
+                logger.warning(f"无效的科室类别 '{source_filter}'，将不过滤")
+                # 设置为空，忽略过滤
+                source_filter = None
+            # 6. 打印答案提示
+            print("\n答案: ", end="", flush=True)
+            # 初始化累积答案的字符串
+            answer = ""
+            # 迭代 query 方法的生成器
+            for token, is_complete in qa_system.query(query, source_filter=source_filter, session_id=session_id):
+                if token:
+                    # 仅当 token 非空时打印
+                    print(token, end="", flush=True)
+                    # 累积答案
+                    answer += token
+                if is_complete:
+                    # 如果是完整答案或流结束，换行并退出循环
+                    print()
