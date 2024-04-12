@@ -433,3 +433,24 @@ def main():
                 if is_complete:
                     # 如果是完整答案或流结束，换行并退出循环
                     print()
+                    break
+            # 7. 打印对话历史
+            history = qa_system.get_session_history(session_id)
+            print("\n最近对话历史:")
+            for idx, entry in enumerate(history, 1):
+                # 按顺序打印历史记录
+                print(f"{idx}. 问: {entry['question']}\n   答: {entry['answer']}")
+    except Exception as e:
+        # 记录系统错误日志
+        logger.error(f"系统错误: {e}")
+        # 打印错误信息
+        print(f"发生错误: {e}")
+    finally:
+        # 关闭 MySQL 连接
+        qa_system.mysql_client.close()
+
+
+# todo 4. 程序的主入口, 当脚本执行运行时, 执行main函数.
+if __name__ == '__main__':
+    main()
+
