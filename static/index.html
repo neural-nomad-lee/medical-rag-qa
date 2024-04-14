@@ -38,3 +38,24 @@
             line-height: 1.6; /* 行高 */
             color: var(--text-color); /* 文本颜色 */
             background-color: var(--bg-color); /* 背景颜色 */
+            display: flex; /* 弹性布局 */
+            flex-direction: column; /* 垂直排列 */
+            height: 100vh; /* 高度100%视口 */
+            transition: var(--transition); /* 过渡效果 */
+        }
+
+        /* 深色模式支持 */
+        body.dark-mode {
+            --primary-color: #5b7cac; /* 主要颜色 */
+            --primary-light: #7c9dcf; /* 主要亮色 */
+            --primary-dark: #4a6fa5; /* 主要暗色 */
+            --secondary-color: #adb5bd; /* 次要颜色 */
+            --bg-color: #212529; /* 背景颜色 */
+            --text-color: #f8f9fa; /* 文本颜色 */
+            --border-color: #343a40; /* 边框颜色 */
+            --hover-color: #343a40; /* 悬停颜色 */
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); /* 渐变背景 */
+            color: white; /* 文本颜色 */
