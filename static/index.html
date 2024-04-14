@@ -59,3 +59,23 @@
         header {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); /* 渐变背景 */
             color: white; /* 文本颜色 */
+            padding: 1rem; /* 内边距 */
+            text-align: center; /* 文本居中 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影 */
+            position: relative; /* 相对定位 */
+        }
+
+        /* 深色模式切换按钮 */
+        .theme-toggle {
+            position: absolute; /* 绝对定位 */
+            right: 1rem; /* 右1rem */
+            top: 50%; /* 顶部50% */
+            transform: translateY(-50%); /* Y轴居中 */
+            background: none; /* 背景无 */
+            border: none; /* 边框无 */
+            color: white; /* 颜色白色 */
+            font-size: 1.2rem; /* 字体大小 */
+            cursor: pointer; /* 鼠标指针 */
+            transition: var(--transition); /* 过渡效果 */
+        }
+
