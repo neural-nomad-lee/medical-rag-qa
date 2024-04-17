@@ -119,3 +119,23 @@
             border-radius: 4px; /* 圆角 */
             border: 1px solid var(--border-color); /* 边框 */
             background-color: var(--bg-color); /* 背景颜色 */
+            color: var(--text-color); /* 文本颜色 */
+            margin-bottom: 1rem; /* 下边距 */
+            transition: var(--transition); /* 过渡效果 */
+        }
+
+        .search-box:focus {
+            outline: none; /* 无轮廓 */
+            border-color: var(--primary-color); /* 边框颜色 */
+            box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2); /* 焦点阴影 */
+        }
+
+        .main-content {
+            flex: 1; /* 占满剩余空间 */
+            display: flex; /* 弹性布局 */
+            flex-direction: column; /* 垂直排列 */
+            position: relative; /* 相对定位 */
+        }
+
+        .chat-history {
+            flex: 1; /* 占满剩余空间 */
