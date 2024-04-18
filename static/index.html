@@ -139,3 +139,24 @@
 
         .chat-history {
             flex: 1; /* 占满剩余空间 */
+            padding: 1rem; /* 内边距 */
+            overflow-y: auto; /* 垂直滚动 */
+            scroll-behavior: smooth; /* 平滑滚动 */
+            background-color: var(--bg-color); /* 背景颜色 */
+            transition: var(--transition); /* 过渡效果 */
+        }
+
+        .chat-input-container {
+            padding: 1rem; /* 内边距 */
+            border-top: 1px solid var(--border-color); /* 上边框 */
+            background-color: var(--bg-color); /* 背景颜色 */
+            display: flex; /* 弹性布局 */
+            flex-direction: column; /* 垂直排列 */
+            transition: var(--transition); /* 过渡效果 */
+        }
+
+        .source-filter {
+            display: flex; /* 弹性布局 */
+            align-items: center; /* 垂直居中 */
+            margin-bottom: 0.5rem; /* 下边距 */
+            color: var(--text-color); /* 文本颜色 */
