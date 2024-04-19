@@ -180,3 +180,23 @@
 
         .tool-btn {
             background-color: transparent; /* 透明背景 */
+            border: none; /* 无边框 */
+            color: var(--secondary-color); /* 文本颜色 */
+            cursor: pointer; /* 鼠标指针 */
+            padding: 0.3rem; /* 内边距 */
+            border-radius: 4px; /* 圆角 */
+            transition: var(--transition); /* 过渡效果 */
+        }
+
+        .tool-btn:hover {
+            background-color: var(--hover-color); /* 悬停背景 */
+            color: var(--primary-color); /* 悬停颜色 */
+        }
+
+        .input-group {
+            display: flex; /* 弹性布局 */
+            position: relative; /* 相对定位 */
+        }
+
+        .chat-input {
+            flex: 1; /* 占满剩余空间 */
