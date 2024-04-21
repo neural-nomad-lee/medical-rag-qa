@@ -200,3 +200,23 @@
 
         .chat-input {
             flex: 1; /* 占满剩余空间 */
+            padding: 0.75rem; /* 内边距 */
+            border: 1px solid var(--border-color); /* 边框 */
+            border-radius: 4px 0 0 4px; /* 圆角 */
+            font-size: 1rem; /* 字体大小 */
+            resize: none; /* 不可调整大小 */
+            height: 45px; /* 高度 */
+            max-height: 150px; /* 最大高度 */
+            overflow-y: auto; /* 垂直滚动 */
+            background-color: var(--bg-color); /* 背景颜色 */
+            color: var(--text-color); /* 文本颜色 */
+            transition: var(--transition); /* 过渡效果 */
+        }
+
+        .chat-input:focus {
+            outline: none; /* 无轮廓 */
+            border-color: var(--primary-color); /* 边框颜色 */
+            box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2); /* 焦点阴影 */
+        }
+
+        .send-btn {
