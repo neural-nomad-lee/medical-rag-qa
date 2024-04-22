@@ -240,3 +240,24 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 悬停阴影 */
         }
 
+        .send-btn:active {
+            transform: translateY(0); /* 恢复 */
+            box-shadow: none; /* 无阴影 */
+        }
+
+        .send-btn:disabled {
+            background-color: var(--secondary-color); /* 禁用背景 */
+            cursor: not-allowed; /* 禁用指针 */
+        }
+
+        .message {
+            margin-bottom: 1rem; /* 下边距 */
+            display: flex; /* 弹性布局 */
+            flex-direction: column; /* 垂直排列 */
+            animation: fadeIn 0.3s ease; /* 淡入动画 */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
