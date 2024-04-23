@@ -362,3 +362,23 @@
             background-color: var(--secondary-color); /* 背景颜色 */
             margin-right: 4px; /* 右边距 */
             animation: typing 1s infinite; /* 打字动画 */
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s; /* 延迟 */
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s; /* 延迟 */
+            margin-right: 0; /* 无右边距 */
+        }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .session-controls {
+            display: flex; /* 弹性布局 */
+            justify-content: space-between; /* 两端对齐 */
+            margin-bottom: 1rem; /* 下边距 */
