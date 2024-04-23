@@ -301,3 +301,23 @@
             color: white; /* 文本颜色 */
             align-self: flex-end; /* 右对齐 */
             border-top-right-radius: 0; /* 右上圆角0 */
+        }
+
+        .system-message {
+            align-self: flex-start; /* 左对齐 */
+        }
+
+        .system-message .message-content {
+            background-color: var(--hover-color); /* 背景颜色 */
+            color: var(--text-color); /* 文本颜色 */
+            align-self: flex-start; /* 左对齐 */
+            border-top-left-radius: 0; /* 左上圆角0 */
+        }
+
+        /* 消息状态指示 */
+        .message-status {
+            display: flex; /* 弹性布局 */
+            align-items: center; /* 垂直居中 */
+            margin-top: 0.25rem; /* 上边距 */
+            font-size: 0.75rem; /* 字体大小 */
+            color: var(--secondary-color); /* 文本颜色 */
