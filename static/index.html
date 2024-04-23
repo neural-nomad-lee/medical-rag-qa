@@ -281,3 +281,23 @@
             align-items: center; /* 垂直居中 */
             justify-content: center; /* 水平居中 */
             font-weight: bold; /* 粗体 */
+        }
+
+        .message-content {
+            padding: 0.75rem 1rem; /* 内边距 */
+            border-radius: 8px; /* 圆角 */
+            max-width: 80%; /* 最大宽度 */
+            word-break: break-word; /* 单词换行 */
+            box-shadow: var(--card-shadow); /* 卡片阴影 */
+            position: relative; /* 相对定位 */
+        }
+
+        .user-message {
+            align-self: flex-end; /* 右对齐 */
+        }
+
+        .user-message .message-content {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); /* 渐变背景 */
+            color: white; /* 文本颜色 */
+            align-self: flex-end; /* 右对齐 */
+            border-top-right-radius: 0; /* 右上圆角0 */
