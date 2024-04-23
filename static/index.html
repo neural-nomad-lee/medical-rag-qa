@@ -341,3 +341,24 @@
         /* 图片样式 */
         .message-content img {
             max-width: 100%; /* 最大宽度 */
+            border-radius: 4px; /* 圆角 */
+            margin: 0.5rem 0; /* 上下边距 */
+        }
+
+        .typing-indicator {
+            display: inline-block; /* 行内块 */
+            padding: 0.75rem 1rem; /* 内边距 */
+            background-color: var(--hover-color); /* 背景颜色 */
+            border-radius: 8px; /* 圆角 */
+            margin-bottom: 1rem; /* 下边距 */
+            box-shadow: var(--card-shadow); /* 卡片阴影 */
+        }
+
+        .typing-indicator span {
+            display: inline-block; /* 行内块 */
+            width: 8px; /* 宽度 */
+            height: 8px; /* 高度 */
+            border-radius: 50%; /* 圆形 */
+            background-color: var(--secondary-color); /* 背景颜色 */
+            margin-right: 4px; /* 右边距 */
+            animation: typing 1s infinite; /* 打字动画 */
