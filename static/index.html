@@ -402,3 +402,23 @@
         }
 
         .new-session-btn:hover, .clear-history-btn:hover {
+            background-color: var(--primary-color); /* 悬停背景 */
+            transform: translateY(-2px); /* 上移 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 悬停阴影 */
+        }
+
+        .new-session-btn:active, .clear-history-btn:active {
+            transform: translateY(0); /* 恢复 */
+            box-shadow: none; /* 无阴影 */
+        }
+
+        .session-info {
+            font-size: 0.9rem; /* 字体大小 */
+            color: var(--secondary-color); /* 文本颜色 */
+            margin-top: 1rem; /* 上边距 */
+            padding-top: 1rem; /* 上内边距 */
+            border-top: 1px solid var(--border-color); /* 上边框 */
+        }
+
+        .history-title {
+            font-weight: bold; /* 粗体 */
