@@ -422,3 +422,23 @@
 
         .history-title {
             font-weight: bold; /* 粗体 */
+            margin-bottom: 1rem; /* 下边距 */
+            color: var(--primary-color); /* 文本颜色 */
+            display: flex; /* 弹性布局 */
+            align-items: center; /* 垂直居中 */
+            gap: 0.5rem; /* 间距 */
+        }
+
+        .history-list {
+            flex: 1; /* 占满剩余空间 */
+            overflow-y: auto; /* 垂直滚动 */
+        }
+
+        .history-item {
+            padding: 0.75rem; /* 内边距 */
+            border-bottom: 1px solid var(--border-color); /* 下边框 */
+            cursor: pointer; /* 鼠标指针 */
+            transition: var(--transition); /* 过渡效果 */
+            border-radius: 4px; /* 圆角 */
+            margin-bottom: 0.5rem; /* 下边距 */
+            background-color: var(--hover-color); /* 背景颜色 */
