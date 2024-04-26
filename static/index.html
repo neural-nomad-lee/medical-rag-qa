@@ -442,3 +442,24 @@
             border-radius: 4px; /* 圆角 */
             margin-bottom: 0.5rem; /* 下边距 */
             background-color: var(--hover-color); /* 背景颜色 */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* 阴影 */
+        }
+
+        .history-item:hover {
+            background-color: rgba(74, 111, 165, 0.1); /* 悬停背景 */
+            transform: translateX(5px); /* 右移 */
+        }
+
+        .history-question {
+            font-weight: bold; /* 粗体 */
+            white-space: nowrap; /* 不换行 */
+            overflow: hidden; /* 溢出隐藏 */
+            text-overflow: ellipsis; /* 省略号 */
+            color: var(--text-color); /* 文本颜色 */
+        }
+
+        .history-answer {
+            color: var(--secondary-color); /* 文本颜色 */
+            white-space: nowrap; /* 不换行 */
+            overflow: hidden; /* 溢出隐藏 */
+            text-overflow: ellipsis; /* 省略号 */
