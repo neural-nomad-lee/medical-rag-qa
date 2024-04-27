@@ -463,3 +463,23 @@
             white-space: nowrap; /* 不换行 */
             overflow: hidden; /* 溢出隐藏 */
             text-overflow: ellipsis; /* 省略号 */
+            font-size: 0.85rem; /* 字体大小 */
+        }
+
+        .loading-overlay {
+            position: absolute; /* 绝对定位 */
+            top: 0; /* 顶部 */
+            left: 0; /* 左侧 */
+            right: 0; /* 右侧 */
+            bottom: 0; /* 底部 */
+            background-color: rgba(255, 255, 255, 0.8); /* 背景颜色 */
+            display: flex; /* 弹性布局 */
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+            z-index: 10; /* 层级 */
+            visibility: hidden; /* 隐藏 */
+            backdrop-filter: blur(2px); /* 背景模糊 */
+            transition: var(--transition); /* 过渡效果 */
+        }
+
+        body.dark-mode .loading-overlay {
