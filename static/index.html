@@ -483,3 +483,23 @@
         }
 
         body.dark-mode .loading-overlay {
+            background-color: rgba(33, 37, 41, 0.8); /* 深色模式背景 */
+        }
+
+        .spinner {
+            width: 50px; /* 宽度 */
+            height: 50px; /* 高度 */
+            border: 5px solid rgba(0, 0, 0, 0.1); /* 边框 */
+            border-radius: 50%; /* 圆形 */
+            border-left-color: var(--primary-color); /* 左边框颜色 */
+            animation: spin 1s linear infinite; /* 旋转动画 */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 快捷回复区域 */
+        .quick-replies {
+            display: flex; /* 弹性布局 */
