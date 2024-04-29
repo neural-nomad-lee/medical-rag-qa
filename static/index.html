@@ -503,3 +503,23 @@
         /* 快捷回复区域 */
         .quick-replies {
             display: flex; /* 弹性布局 */
+            flex-wrap: wrap; /* 换行 */
+            gap: 0.5rem; /* 间距 */
+            margin-top: 0.5rem; /* 上边距 */
+        }
+
+        .quick-reply-btn {
+            padding: 0.3rem 0.75rem; /* 内边距 */
+            background-color: var(--hover-color); /* 背景颜色 */
+            border: 1px solid var(--border-color); /* 边框 */
+            border-radius: 20px; /* 圆角 */
+            color: var(--text-color); /* 文本颜色 */
+            cursor: pointer; /* 鼠标指针 */
+            font-size: 0.85rem; /* 字体大小 */
+            transition: var(--transition); /* 过渡效果 */
+        }
+
+        .quick-reply-btn:hover {
+            background-color: var(--primary-color); /* 悬停背景 */
+            color: white; /* 悬停颜色 */
+            border-color: var(--primary-color); /* 悬停边框 */
