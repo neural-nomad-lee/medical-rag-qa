@@ -523,3 +523,23 @@
             background-color: var(--primary-color); /* 悬停背景 */
             color: white; /* 悬停颜色 */
             border-color: var(--primary-color); /* 悬停边框 */
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column; /* 垂直排列 */
+            }
+
+            .sidebar {
+                width: 100%; /* 宽度100% */
+                border-right: none; /* 无边框 */
+                border-bottom: 1px solid var(--border-color); /* 下边框 */
+                max-height: 200px; /* 最大高度 */
+            }
+
+            .message-content {
+                max-width: 90%; /* 最大宽度90% */
+            }
+        }
+    </style>
