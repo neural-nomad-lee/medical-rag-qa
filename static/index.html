@@ -644,3 +644,23 @@
         const sendBtn = document.getElementById('sendBtn'); // 发送按钮
         const sourceFilter = document.getElementById('sourceFilter'); // 科室过滤器
         const historyList = document.getElementById('historyList'); // 历史列表
+        const sessionInfo = document.getElementById('sessionInfo'); // 会话信息
+        const newSessionBtn = document.getElementById('newSessionBtn'); // 新会话按钮
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn'); // 清除历史按钮
+        const loadingOverlay = document.getElementById('loadingOverlay'); // 加载遮罩
+        const themeToggle = document.getElementById('themeToggle'); // 主题切换按钮
+        const searchBox = document.getElementById('searchBox'); // 搜索框
+        const quickReplies = document.getElementById('quickReplies'); // 快捷回复
+        const quickReplyBtns = quickReplies.querySelectorAll('.quick-reply-btn'); // 快捷回复按钮
+        const emojiBtn = document.getElementById('emojiBtn'); // 表情按钮
+        const imageBtn = document.getElementById('imageBtn'); // 图片按钮
+        const fileBtn = document.getElementById('fileBtn'); // 文件按钮
+
+        // API URL 前缀，根据部署环境调整
+        const API_BASE_URL = ''; // 如果 API 和前端在同一域，可以留空
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 检查本地存储中的主题设置
+            isDarkMode = localStorage.getItem('darkMode') === 'true';
+            updateTheme();
