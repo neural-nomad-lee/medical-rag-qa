@@ -624,3 +624,23 @@
                     </div>
                 </div>
 
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentSessionId = null; // 当前会话 ID
+        let isResponseInProgress = false; // 是否正在处理响应
+        let socket = null; // WebSocket 连接
+        let isDarkMode = false; // 是否深色模式
+
+        // DOM 元素
+        const chatHistory = document.getElementById('chatHistory'); // 聊天历史容器
+        const chatInput = document.getElementById('chatInput'); // 输入框
+        const sendBtn = document.getElementById('sendBtn'); // 发送按钮
+        const sourceFilter = document.getElementById('sourceFilter'); // 科室过滤器
+        const historyList = document.getElementById('historyList'); // 历史列表
