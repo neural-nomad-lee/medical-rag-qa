@@ -664,3 +664,24 @@
             // 检查本地存储中的主题设置
             isDarkMode = localStorage.getItem('darkMode') === 'true';
             updateTheme();
+
+            // 创建新会话
+            await createNewSession();
+
+            // 加载科室类别
+            await loadSources();
+
+            // 事件监听器
+            sendBtn.addEventListener('click', sendMessage); // 发送按钮点击事件
+            chatInput.addEventListener('keydown', (e) => { // 输入框键盘事件
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            newSessionBtn.addEventListener('click', createNewSession); // 新会话按钮点击事件
+            clearHistoryBtn.addEventListener('click', clearHistory); // 清除历史按钮点击事件
+            themeToggle.addEventListener('click', toggleTheme); // 主题切换按钮点击事件
+            searchBox.addEventListener('input', searchHistory); // 搜索框输入事件
+
