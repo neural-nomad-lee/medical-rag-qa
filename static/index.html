@@ -685,3 +685,23 @@
             themeToggle.addEventListener('click', toggleTheme); // 主题切换按钮点击事件
             searchBox.addEventListener('input', searchHistory); // 搜索框输入事件
 
+            // 快捷回复按钮点击事件
+            quickReplyBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    chatInput.value = btn.textContent;
+                    chatInput.style.height = 'auto';
+                    chatInput.style.height = chatInput.scrollHeight + 'px';
+                    sendMessage();
+                });
+            });
+
+            // 工具按钮点击事件
+            emojiBtn.addEventListener('click', () => alert('表情选择功能开发中'));
+            imageBtn.addEventListener('click', () => alert('图片上传功能开发中'));
+            fileBtn.addEventListener('click', () => alert('文件上传功能开发中'));
+        });
+
+        // 切换主题
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode);
