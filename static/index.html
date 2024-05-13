@@ -705,3 +705,23 @@
         function toggleTheme() {
             isDarkMode = !isDarkMode;
             localStorage.setItem('darkMode', isDarkMode);
+            updateTheme();
+        }
+
+        // 更新主题
+        function updateTheme() {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        // 搜索历史会话
+        function searchHistory() {
+            const searchTerm = searchBox.value.toLowerCase();
+            const historyItems = historyList.querySelectorAll('.history-item');
+
+            historyItems.forEach(item => {
