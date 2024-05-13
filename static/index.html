@@ -725,3 +725,23 @@
             const historyItems = historyList.querySelectorAll('.history-item');
 
             historyItems.forEach(item => {
+                const question = item.querySelector('.history-question').textContent.toLowerCase();
+                const answer = item.querySelector('.history-answer').textContent.toLowerCase();
+
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // 创建新会话
+        async function createNewSession() {
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/create_session`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) {
