@@ -745,3 +745,23 @@
                 });
 
                 if (!response.ok) {
+                    throw new Error('创建会话失败');
+                }
+
+                const data = await response.json();
+                currentSessionId = data.session_id; // 更新当前会话 ID
+
+                // 更新会话信息
+                sessionInfo.textContent = `会话ID: ${currentSessionId.slice(0, 8)}...`;
+
+                // 清空聊天历史
+                clearChatHistory();
+
+                // 加载会话历史
+                await loadHistory();
+
+            } catch (error) {
+                console.error('创建会话错误:', error);
+                alert('创建会话失败，请刷新页面重试');
+            } finally {
+                hideLoading();
