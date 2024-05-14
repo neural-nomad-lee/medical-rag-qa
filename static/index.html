@@ -806,3 +806,23 @@
                     throw new Error('获取历史记录失败');
                 }
 
+                const data = await response.json();
+
+                // 清空历史列表
+                historyList.innerHTML = '';
+
+                // 将历史记录按会话分组
+                const sessionItem = document.createElement('div');
+                sessionItem.className = 'history-item';
+                sessionItem.innerHTML = `
+                    <div class="history-question">会话 ${currentSessionId.slice(0, 8)}...</div>
+                    <div class="history-answer">共 ${data.history.length} 轮对话</div>
+                `;
+
+                // 点击历史记录项显示整个会话
+                sessionItem.addEventListener('click', () => {
+                    // 清空现有聊天记录
+                    clearChatHistory();
+
+                    // 添加整个会话的 QA 对
+                    data.history.forEach(item => {
