@@ -765,3 +765,24 @@
                 alert('创建会话失败，请刷新页面重试');
             } finally {
                 hideLoading();
+            }
+        }
+
+        // 加载科室类别
+        async function loadSources() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/departments`);
+
+                if (!response.ok) {
+                    throw new Error('获取科室类别失败');
+                }
+
+                const data = await response.json();
+
+                // 清空现有选项
+                sourceFilter.innerHTML = '<option value="">全部</option>';
+
+                // 添加科室类别选项
+                data.departments.forEach(source => {
+                    const option = document.createElement('option');
+                    option.value = source;
