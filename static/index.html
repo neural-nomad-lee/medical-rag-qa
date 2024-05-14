@@ -826,3 +826,23 @@
 
                     // 添加整个会话的 QA 对
                     data.history.forEach(item => {
+                        addMessage('user', item.question); // 添加用户问题
+                        addMessage('system', item.answer); // 添加系统回答
+                    });
+
+                    // 滚动到底部
+                    scrollToBottom();
+                });
+
+                historyList.appendChild(sessionItem);
+
+            } catch (error) {
+                console.error('加载历史记录错误:', error);
+            }
+        }
+
+        // 清除历史记录
+        async function clearHistory() {
+            if (!currentSessionId) return;
+
+            if (!confirm('确定要清除所有历史记录吗？')) {
