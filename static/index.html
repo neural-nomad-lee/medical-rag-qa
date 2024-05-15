@@ -887,3 +887,23 @@
         }
 
         // 清空聊天历史
+        function clearChatHistory() {
+            chatHistory.innerHTML = `
+                <div class="message system-message">
+                    <div class="message-header">
+                        <div class="avatar">智</div>
+                        <span>智能助手</span>
+                    </div>
+                    <div class="message-content">
+                        您好！我是智能问答助手，有什么我可以帮您的吗？
+                    </div>
+                </div>
+            `;
+        }
+
+        // 显示加载遮罩
+        function showLoading() {
+            loadingOverlay.style.visibility = 'visible';
+        }
+
+        // 隐藏加载遮罩
