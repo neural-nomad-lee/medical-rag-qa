@@ -866,3 +866,24 @@
                 clearChatHistory();
 
                 // 添加欢迎消息
+                chatHistory.innerHTML = `
+                    <div class="message system-message">
+                        <div class="message-header">
+                            <div class="avatar">智</div>
+                            <span>智能助手</span>
+                        </div>
+                        <div class="message-content">
+                            历史记录已清除，有什么我可以帮您的吗？
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('清除历史记录错误:', error);
+                alert('清除历史记录失败');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 清空聊天历史
