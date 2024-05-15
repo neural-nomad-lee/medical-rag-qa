@@ -907,3 +907,23 @@
         }
 
         // 隐藏加载遮罩
+        function hideLoading() {
+            loadingOverlay.style.visibility = 'hidden';
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const query = chatInput.value.trim();
+            const filter = sourceFilter.value;
+
+            if (!query || isResponseInProgress) return;
+
+            // 重置输入框
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+
+            // 添加用户消息到聊天窗口
+            addMessage('user', query);
+
+            // 设置正在响应标志
+            isResponseInProgress = true;
