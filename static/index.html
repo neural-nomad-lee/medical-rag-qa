@@ -927,3 +927,23 @@
 
             // 设置正在响应标志
             isResponseInProgress = true;
+
+            // 添加正在输入指示器
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+            chatHistory.appendChild(typingIndicator);
+
+            // 滚动到底部
+            scrollToBottom();
+
+            try {
+                // 发送查询请求
+                const response = await fetch(`${API_BASE_URL}/api/query`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        source_filter: filter,
