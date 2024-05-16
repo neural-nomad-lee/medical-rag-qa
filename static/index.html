@@ -947,3 +947,23 @@
                     body: JSON.stringify({
                         query: query,
                         source_filter: filter,
+                        session_id: currentSessionId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('查询失败');
+                }
+
+                const data = await response.json();
+
+                // 移除输入指示器
+                if (typingIndicator.parentNode) {
+                    chatHistory.removeChild(typingIndicator);
+                }
+
+                // 如果需要流式输出，使用 WebSocket
+                if (data.is_streaming) {
+                    // 创建系统消息容器，但内容为空
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message system-message';
