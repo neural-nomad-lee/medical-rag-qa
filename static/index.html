@@ -988,3 +988,23 @@
                 } else {
                     // 直接添加格式化后的答案
                     addMessage('system', data.answer);
+                }
+
+                // 重新加载历史记录
+                await loadHistory();
+
+            } catch (error) {
+                console.error('发送消息错误:', error);
+
+                // 移除输入指示器
+                if (typingIndicator.parentNode) {
+                    chatHistory.removeChild(typingIndicator);
+                }
+
+                // 添加错误消息
+                addMessage('system', `抱歉，发生错误: ${error.message}`);
+            } finally {
+                // 清除正在响应标志
+                isResponseInProgress = false;
+
+                // 滚动到底部
