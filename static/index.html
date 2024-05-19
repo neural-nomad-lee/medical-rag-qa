@@ -1048,3 +1048,23 @@
                     switch (data.type) {
                         case 'start':
                             console.log('流式响应开始');
+                            break;
+
+                        case 'token':
+                            // 追加 token 到内容
+                            accumulatedContent += data.token;
+                            // 使用 marked.js 解析 Markdown 格式
+                            contentElement.innerHTML = marked.parse(accumulatedContent);
+                            scrollToBottom();
+                            break;
+
+                        case 'end':
+                            console.log('流式响应结束');
+                            socket.close();
+                            resolve();
+                            break;
+
+                        case 'error':
+                            console.error('流式响应错误:', data.error);
+                            contentElement.innerHTML += `<p>[错误: ${data.error}]</p>`;
+                            socket.close();
