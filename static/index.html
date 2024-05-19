@@ -1028,3 +1028,23 @@
                 socket = new WebSocket(wsUrl);
 
                 let accumulatedContent = ''; // 累积流式内容
+
+                // 连接建立时
+                socket.onopen = function() {
+                    console.log('WebSocket 连接已建立');
+
+                    // 发送查询请求
+                    socket.send(JSON.stringify({
+                        query: query,
+                        source_filter: filter,
+                        session_id: currentSessionId
+                    }));
+                };
+
+                // 接收消息时
+                socket.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+
+                    switch (data.type) {
+                        case 'start':
+                            console.log('流式响应开始');
