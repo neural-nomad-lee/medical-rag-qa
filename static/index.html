@@ -1089,3 +1089,23 @@
         }
 
         // 添加消息到聊天窗口（支持 Markdown 格式）
+        function addMessage(type, content) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type === 'user' ? 'user-message' : 'system-message'}`;
+
+            // 添加消息头部
+            const headerElement = document.createElement('div');
+            headerElement.className = 'message-header';
+
+            if (type === 'user') {
+                headerElement.innerHTML = `
+                    <div class="avatar">用</div>
+                    <span>我</span>
+                `;
+            } else {
+                headerElement.innerHTML = `
+                    <div class="avatar">智</div>
+                    <span>智能助手</span>
+                `;
+            }
+
