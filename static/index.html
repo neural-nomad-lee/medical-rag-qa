@@ -1068,3 +1068,24 @@
                             console.error('流式响应错误:', data.error);
                             contentElement.innerHTML += `<p>[错误: ${data.error}]</p>`;
                             socket.close();
+                            reject(new Error(data.error));
+                            break;
+                    }
+                };
+
+                // 发生错误时
+                socket.onerror = function(error) {
+                    console.error('WebSocket 错误:', error);
+                    contentElement.innerHTML += '<p>[连接错误]</p>';
+                    reject(error);
+                };
+
+                // 连接关闭时
+                socket.onclose = function() {
+                    console.log('WebSocket 连接已关闭');
+                    resolve();
+                };
+            });
+        }
+
+        // 添加消息到聊天窗口（支持 Markdown 格式）
