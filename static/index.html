@@ -1109,3 +1109,23 @@
                 `;
             }
 
+            const contentElement = document.createElement('div');
+            contentElement.className = 'message-content';
+            // 使用 marked.js 解析 Markdown 格式（支持换行和代码块）
+            contentElement.innerHTML = marked.parse(content);
+
+            messageElement.appendChild(headerElement);
+            messageElement.appendChild(contentElement);
+            chatHistory.appendChild(messageElement);
+
+            // 滚动到底部
+            scrollToBottom();
+        }
+
+        // 滚动到底部
+        function scrollToBottom() {
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+    </script>
+</body>
+</html>
