@@ -18,3 +18,22 @@ init_mysql.py —— 一键初始化知识库（建库 → 建表 → 导 CSV �
      本脚本会先判重，已导入就跳过。
 
 【用法】
+  python scripts/init_mysql.py
+"""
+
+import os
+import sys
+
+import pymysql
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE) if os.path.basename(HERE) == "scripts" else HERE
+sys.path.insert(0, ROOT)
+
+# 复用项目自己的配置类（保证与业务代码读的是同一份配置）
+from base.config import config
+
+# 兼容性处理：手册里的"改进版 Config"新增了 MYSQL_CHARSET 字段，
+# 而项目当前的 base/config.py 是原版、没有该字段。
+# 用 getattr 兜底，保证脚本在两种配置下都能跑。
+MYSQL_CHARSET = getattr(config, "MYSQL_CHARSET", "utf8mb4")
