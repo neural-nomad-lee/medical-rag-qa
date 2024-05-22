@@ -77,3 +77,22 @@ def step1_create_database():
 
 def step2_create_table():
     """第 2 步：建 ylkb 医疗知识库表（注意：注释全部写在 SQL 外部！）"""
+    print("[2/4] 建表 ylkb（与 mysql_qa/db/mysql_client.py 查询的表名保持一致）")
+    conn = connect()
+    try:
+        with conn.cursor() as cur:
+            # 字段说明：
+            #   department 科室名称（对应 医疗导诊FAQ.csv 的"科室"列，VARCHAR(20) 足够）
+            #   question     问题原文
+            #   answer       答案原文 → 用 TEXT 更安全，避免长答案被截断
+            #   expire_at    到期时间：NULL=永久保留；RAG 沉淀的答案设为半年后到期，
+            #                由应用层定期清理（见 app.py 的 cleanup_expired_knowledge）
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS ylkb (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    department VARCHAR(20),
+                    question TEXT NOT NULL,
+                    answer TEXT NOT NULL,
+                    expire_at DATETIME NULL,
+                    INDEX idx_expire_at (expire_at)
