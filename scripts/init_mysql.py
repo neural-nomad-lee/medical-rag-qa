@@ -37,3 +37,23 @@ from base.config import config
 # 而项目当前的 base/config.py 是原版、没有该字段。
 # 用 getattr 兜底，保证脚本在两种配置下都能跑。
 MYSQL_CHARSET = getattr(config, "MYSQL_CHARSET", "utf8mb4")
+
+
+def connect(use_db=True):
+    """
+    建立连接。
+    :param use_db: True → 连到 med_kg 库；False → 只连服务器（建库时需要）
+    注意 charset='utf8mb4'：本机 MySQL 5.7 服务端默认是 latin1，
+         不显式指定会导致中文写入报 Incorrect string value 或乱码。
+    """
+    kwargs = dict(
+        host=config.MYSQL_HOST,
+        user=config.MYSQL_USER,
+        password=config.MYSQL_PASSWORD,
+        charset=MYSQL_CHARSET,
+        autocommit=False,
+    )
+    if use_db:
+        kwargs["database"] = config.MYSQL_DATABASE
+    return pymysql.connect(**kwargs)
+
