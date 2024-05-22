@@ -57,3 +57,23 @@ def connect(use_db=True):
         kwargs["database"] = config.MYSQL_DATABASE
     return pymysql.connect(**kwargs)
 
+
+def step1_create_database():
+    """第 1 步：建库（utf8mb4，支持中文与 emoji）"""
+    print(f"[1/4] 建库 {config.MYSQL_DATABASE}（若不存在）")
+    conn = connect(use_db=False)
+    try:
+        with conn.cursor() as cur:
+            # IF NOT EXISTS 保证幂等；utf8mb4_general_ci 是 5.7/8.0 通吃的排序规则
+            cur.execute(
+                f"CREATE DATABASE IF NOT EXISTS `{config.MYSQL_DATABASE}` "
+                f"DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
+            )
+        conn.commit()
+        print("      ✓ 库已就绪")
+    finally:
+        conn.close()
+
+
+def step2_create_table():
+    """第 2 步：建 ylkb 医疗知识库表（注意：注释全部写在 SQL 外部！）"""
