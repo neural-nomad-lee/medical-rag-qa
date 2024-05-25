@@ -96,3 +96,23 @@ def step2_create_table():
                     answer TEXT NOT NULL,
                     expire_at DATETIME NULL,
                     INDEX idx_expire_at (expire_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                """
+            )
+        conn.commit()
+        print("      ✓ 表已就绪")
+    finally:
+        conn.close()
+
+
+def step3_import_csv():
+    """第 3 步：导入医疗导诊FAQ.csv（判重，已导入则跳过）"""
+    csv_path = os.path.join(ROOT, "mysql_qa", "data", "医疗导诊FAQ.csv")
+    print(f"[3/4] 导入 CSV：{os.path.relpath(csv_path, ROOT)}")
+
+    if not os.path.exists(csv_path):
+        print(f"      ✗ 找不到 CSV：{csv_path}")
+        return 0
+
+    import pandas as pd
+
