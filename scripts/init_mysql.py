@@ -116,3 +116,22 @@ def step3_import_csv():
 
     import pandas as pd
 
+    conn = connect()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM ylkb")
+            existing = cur.fetchone()[0]
+            if existing > 0:
+                print(f"      已有 {existing} 条数据，跳过导入（如需重灌请先清空表）")
+                return existing
+
+            # pandas 能正确处理"答案字段里含换行符"的 CSV（普通逐行读会把一条记录拆成多行）
+            # FAQ 精准问答数据为人工维护的种子知识，expire_at 置 NULL 表示永久保留。
+            data = pd.read_csv(csv_path)
+            rows = [
+                (str(r["科室"]), str(r["问题"]), str(r["答案"]), None)
+                for _, r in data.iterrows()
+            ]
+            # executemany：比逐条 execute 快一个数量级
+            cur.executemany(
+                "INSERT INTO ylkb(department, question, answer, expire_at) VALUES(%s, %s, %s, %s)",
