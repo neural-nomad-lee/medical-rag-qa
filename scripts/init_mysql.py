@@ -135,3 +135,23 @@ def step3_import_csv():
             # executemany：比逐条 execute 快一个数量级
             cur.executemany(
                 "INSERT INTO ylkb(department, question, answer, expire_at) VALUES(%s, %s, %s, %s)",
+                rows,
+            )
+        conn.commit()
+        print(f"      ✓ 导入完成：{len(rows)} 条")
+        return len(rows)
+    except Exception as e:
+        conn.rollback()
+        print(f"      ✗ 导入失败，已回滚：{type(e).__name__}: {e}")
+        raise
+    finally:
+        conn.close()
+
+
+def step4_verify():
+    """第 4 步：校验（条数 / 科室分布 / 最长答案长度）"""
+    print("[4/4] 校验")
+    conn = connect()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM ylkb")
