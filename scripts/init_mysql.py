@@ -155,3 +155,23 @@ def step4_verify():
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT COUNT(*) FROM ylkb")
+            total = cur.fetchone()[0]
+            print(f"      总条数：{total}")
+
+            cur.execute("SELECT department, COUNT(*) FROM ylkb GROUP BY department")
+            for name, cnt in cur.fetchall():
+                print(f"      科室分布：{name} → {cnt} 条")
+
+            cur.execute("SELECT MAX(CHAR_LENGTH(answer)), MAX(CHAR_LENGTH(question)) FROM ylkb")
+            max_ans, max_q = cur.fetchone()
+            print(f"      最长答案 {max_ans} 字符 ｜ 最长问题 {max_q} 字符")
+
+            # 抽查一条，确认中文没乱码
+            cur.execute("SELECT question, LEFT(answer, 40) FROM ylkb LIMIT 1")
+            q, a = cur.fetchone()
+            print(f"      抽样：Q={q[:34]} … A={a}…")
+
+            # 验证 SQL 注入防护占位符可用（顺带验证查询路径）
+            cur.execute("SELECT answer FROM ylkb WHERE question=%s", ("血压低挂什么科？",))
+            row = cur.fetchone()
+            print(f"      fetch_answer 通道：{'命中' if row else '未命中（该问题可能不在本数据集中）'}")
