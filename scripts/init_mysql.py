@@ -175,3 +175,22 @@ def step4_verify():
             cur.execute("SELECT answer FROM ylkb WHERE question=%s", ("血压低挂什么科？",))
             row = cur.fetchone()
             print(f"      fetch_answer 通道：{'命中' if row else '未命中（该问题可能不在本数据集中）'}")
+
+            # 验证会话历史表能否创建（这是 new_main.py 启动时会执行的 DDL）
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS conversations (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    session_id VARCHAR(36) NOT NULL,
+                    question TEXT NOT NULL,
+                    answer TEXT NOT NULL,
+                    timestamp DATETIME NOT NULL,
+                    INDEX idx_session_id (session_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                """
+            )
+            conn.commit()
+            print("      ✓ conversations 表已就绪（多轮对话历史）")
+        return total
+    finally:
+        conn.close()
