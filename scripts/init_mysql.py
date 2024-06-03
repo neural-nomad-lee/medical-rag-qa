@@ -194,3 +194,23 @@ def step4_verify():
         return total
     finally:
         conn.close()
+
+
+def main():
+    print("=" * 60)
+    print("知识库初始化（幂等，可重复执行）")
+    print(f"MySQL: {config.MYSQL_HOST} ｜ 库: {config.MYSQL_DATABASE} ｜ 字符集: {MYSQL_CHARSET}")
+    print("=" * 60)
+    step1_create_database()
+    step2_create_table()
+    step3_import_csv()
+    total = step4_verify()
+    print("=" * 60)
+    if total:
+        print(f"✅ 完成：ylkb 共 {total} 条，可以运行 python mysql_qa/db/mysql_client.py 验证")
+    else:
+        print("⚠️ 表为空，请检查 CSV 路径与内容")
+
+
+if __name__ == "__main__":
+    main()
