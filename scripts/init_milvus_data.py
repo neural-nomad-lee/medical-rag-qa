@@ -18,3 +18,22 @@ init_milvus_data.py —— 一键将医疗知识库文档编码入库 Milvus
 
 import os
 import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+sys.path.insert(0, ROOT)
+
+# 复用项目配置与组件（与业务代码读同一份 config.ini）
+from base.config import config
+from base.logger import logger
+from rag_qa.core.document_processor import process_documents
+from rag_qa.core.vector_store import VectorStore
+
+
+def main():
+    data_root = os.path.join(ROOT, "rag_qa", "data")
+    print("=" * 60)
+    print(f"医疗知识库入库 | Milvus: {config.MILVUS_HOST}:{config.MILVUS_PORT} "
+          f"| 库: {config.MILVUS_DATABASE_NAME} | 集合: {config.MILVUS_COLLECTION_NAME}")
+    print("=" * 60)
+
