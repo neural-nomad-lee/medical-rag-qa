@@ -37,3 +37,22 @@ def main():
           f"| 库: {config.MILVUS_DATABASE_NAME} | 集合: {config.MILVUS_COLLECTION_NAME}")
     print("=" * 60)
 
+    # 1. 初始化向量库（自动加载 BGE-M3 / Reranker 模型，首次运行耗时较长）
+    vector_store = VectorStore(
+        collection_name=config.MILVUS_COLLECTION_NAME,
+        host=config.MILVUS_HOST,
+        port=config.MILVUS_PORT,
+        database=config.MILVUS_DATABASE_NAME,
+    )
+
+    # 2. 遍历科室目录, 处理入库
+    total_chunks = 0
+    for dept in config.DEPARTMENTS:
+        dir_path = os.path.join(data_root, f"{dept}_data")
+        if not os.path.isdir(dir_path):
+            logger.warning(f"目录不存在，跳过: {dir_path}")
+            print(f"  [跳过] {os.path.relpath(dir_path, ROOT)}（目录不存在）")
+            continue
+
+        print(f"  [处理] {os.path.relpath(dir_path, ROOT)} ...")
+        chunks = process_documents(
