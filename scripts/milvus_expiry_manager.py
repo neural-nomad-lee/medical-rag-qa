@@ -60,3 +60,24 @@ def main():
         filter="",
         output_fields=["id", "text", "timestamp"],
         limit=16384,
+    )
+    if not rows:
+        print("集合为空，无数据可管理。")
+        return
+
+    # 2. 筛选到期条目
+    deadline = datetime.now() - timedelta(days=args.days)
+    expired = [r for r in rows if parse_ts(r.get("timestamp")) < deadline]
+
+    print("=" * 60)
+    print(f"集合 {collection} | 总条目: {len(rows)} | 到期(>{args.days}天): {len(expired)}")
+    print("=" * 60)
+
+    for r in expired[:20]:
+        preview = (r.get("text") or "")[:40].replace("\n", " ")
+        print(f"  [{r.get('id')[:8]}…] {parse_ts(r.get('timestamp')).isoformat()}  {preview}…")
+    if len(expired) > 20:
+        print(f"  …（其余 {len(expired) - 20} 条省略）")
+
+    if not expired:
+        print("没有到期条目，无需处理。")
