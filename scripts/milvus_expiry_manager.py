@@ -40,3 +40,23 @@ def parse_ts(ts: str) -> datetime:
 def main():
     parser = argparse.ArgumentParser(description="Milvus 知识库到期数据管理")
     parser.add_argument("--list", action="store_true", help="仅列出到期条目，不执行删除")
+    parser.add_argument("--days", type=int, default=365, help="保存天数，默认 365 天(1年)")
+    args = parser.parse_args()
+
+    client = MilvusClient(
+        uri=f"http://{config.MILVUS_HOST}:{config.MILVUS_PORT}",
+        db_name=config.MILVUS_DATABASE_NAME,
+    )
+    collection = config.MILVUS_COLLECTION_NAME
+    if not client.has_collection(collection):
+        print(f"✗ 集合不存在: {collection}")
+        return
+
+    client.load_collection(collection)
+
+    # 1. 拉取全部条目的 id/text/timestamp（知识库规模有限，直接全量查询）
+    rows = client.query(
+        collection_name=collection,
+        filter="",
+        output_fields=["id", "text", "timestamp"],
+        limit=16384,
