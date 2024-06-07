@@ -81,3 +81,24 @@ def main():
 
     if not expired:
         print("没有到期条目，无需处理。")
+        return
+
+    if args.list:
+        print("(--list 模式：仅列出，不删除)")
+        return
+
+    # 3. 人工确认后删除
+    answer = input(f"\n确认删除以上 {len(expired)} 条到期资料? 输入 y 确认 / 其他取消: ").strip().lower()
+    if answer != "y":
+        print("已取消，未删除任何数据。")
+        return
+
+    ids = [r["id"] for r in expired]
+    # pymilvus MilvusClient.delete 支持按主键列表删除
+    client.delete(collection_name=collection, ids=ids)
+    logger.info(f"已删除 {len(ids)} 条到期数据")
+    print(f"✅ 已删除 {len(ids)} 条到期数据")
+
+
+if __name__ == "__main__":
+    main()
