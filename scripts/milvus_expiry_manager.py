@@ -19,3 +19,24 @@ import os
 import sys
 from datetime import datetime, timedelta
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+sys.path.insert(0, ROOT)
+
+from pymilvus import MilvusClient
+
+from base.config import config
+from base.logger import logger
+
+
+def parse_ts(ts: str) -> datetime:
+    """解析 Milvus 中存储的 ISO 时间字符串，解析失败返回最小时间(视为已到期，需人工确认)."""
+    try:
+        return datetime.fromisoformat(str(ts))
+    except (ValueError, TypeError):
+        return datetime.min
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Milvus 知识库到期数据管理")
+    parser.add_argument("--list", action="store_true", help="仅列出到期条目，不执行删除")
