@@ -56,3 +56,23 @@ def main():
 
         print(f"  [处理] {os.path.relpath(dir_path, ROOT)} ...")
         chunks = process_documents(
+            dir_path,
+            config.PARENT_CHUNK_SIZE,
+            config.CHILD_CHUNK_SIZE,
+            config.CHUNK_OVERLAP,
+        )
+        if not chunks:
+            logger.info(f"目录 {dir_path} 未发现有效文档")
+            print("         未发现有效文档")
+            continue
+
+        vector_store.add_documents(chunks)
+        total_chunks += len(chunks)
+        print(f"         入库 {len(chunks)} 个子块")
+
+    print("=" * 60)
+    print(f"✅ 完成：共入库 {total_chunks} 个文档子块")
+
+
+if __name__ == "__main__":
+    main()
