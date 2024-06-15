@@ -120,3 +120,24 @@ GEN_FILLERS = [
 def build_dataset(total: int = 300):
     random.seed(42)
     medical, general = set(), set()
+
+    # 医疗专业咨询
+    while len(medical) < total // 2:
+        t = random.choice(MED_TOPICS)
+        tpl = random.choice(MED_TEMPLATES)
+        medical.add(tpl.format(t=t))
+        if len(medical) >= total // 2:
+            break
+
+    # 通用知识: 模板组合 + 固定句子填充
+    while len(general) < total - total // 2:
+        if random.random() < 0.4:
+            general.add(random.choice(GEN_FILLERS))
+        else:
+            t = random.choice(GEN_TOPICS)
+            tpl = random.choice(GEN_TEMPLATES)
+            general.add(tpl.format(t=t, t2=random.choice(GEN_TOPICS)))
+
+    items = [{"query": q, "label": "专业咨询"} for q in medical] + \
+            [{"query": q, "label": "通用知识"} for q in general]
+    random.shuffle(items)
