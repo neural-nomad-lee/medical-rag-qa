@@ -141,3 +141,23 @@ def build_dataset(total: int = 300):
     items = [{"query": q, "label": "专业咨询"} for q in medical] + \
             [{"query": q, "label": "通用知识"} for q in general]
     random.shuffle(items)
+    return items
+
+
+def main():
+    total = int(sys.argv[1]) if len(sys.argv) > 1 else 300
+    out_path = os.path.join(ROOT, "rag_qa", "classify_data", f"medical_classify_{total}.json")
+    items = build_dataset(total)
+
+    # 简单质检: 标签均衡性
+    n_med = sum(1 for i in items if i["label"] == "专业咨询")
+    print(f"共生成 {len(items)} 条 | 专业咨询: {n_med} | 通用知识: {len(items) - n_med}")
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        for item in items:
+            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+    print(f"已写入: {out_path}")
+
+
+if __name__ == "__main__":
+    main()
