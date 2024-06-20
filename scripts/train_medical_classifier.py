@@ -17,3 +17,22 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
+from rag_qa.core.query_classifier import QueryClassifier
+
+DATA_FILE = os.path.join(ROOT, "rag_qa", "classify_data", "medical_classify_300.json")
+MODEL_DIR = os.path.join(ROOT, "rag_qa", "models", "bert_query_classifier")
+
+
+def main():
+    # 1. 用一个不存在的临时路径实例化 -> load_model() 会从 bert-base-chinese 基座
+    #    初始化全新模型(而不是加载旧的教育版权重, 避免旧分布偏差残留).
+    fresh = QueryClassifier(model_path=os.path.join(ROOT, "rag_qa", "models", "_tmp_fresh_init"))
+    # 2. 训练完成后模型要保存到正式目录, 训练前把 model_path 指回正式路径.
+    fresh.model_path = MODEL_DIR
+    # 3. 用医疗版训练集训练(300条: 专业咨询/通用知识 各150, 80/20划分).
+    fresh.train_model(DATA_FILE)
+    print("训练完成, 模型已保存至:", MODEL_DIR)
+
+
+if __name__ == "__main__":
+    main()
