@@ -16,3 +16,21 @@
 ## 验证结果
 
 - MySQL：`jpkb` 467 条（JAVA 158 / Python 309），最长答案 999 字符
+- BM25：库内原句命中（softmax=1.0000），库外问题走 RAG（≤0.387）
+- 文档处理：3 个文件全部加载（docx + pdf + md），切分 130 个子块
+  - 修复前只加载 2 个（md 被跳过），只有 79 个子块
+
+## 待你执行（最后一步）
+
+```bash
+conda activate EduRAG
+cd <项目根>
+cd rag_qa && python main.py --data-processing --data-dir ./data
+```
+把 130 个子块编码进 Milvus（BGE-M3 在 CPU 上跑，视机器约 1~3 分钟）。
+
+完成后即可：
+```bash
+python new_main.py        # 命令行问答
+python app.py             # Web 服务 → http://127.0.0.1:8080
+```
